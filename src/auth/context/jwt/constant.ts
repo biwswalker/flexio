@@ -1,0 +1,1 @@
+export const JWT_STORAGE_KEY = process.env.NEXT_PUBLIC_LOCAL_STORAGE_KEY;
