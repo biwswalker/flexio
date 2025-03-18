@@ -28,6 +28,7 @@ const nextConfig = {
 
     return config;
   },
+  output: 'standalone',
   ...(isStaticExport === 'true' && {
     output: 'export',
   }),

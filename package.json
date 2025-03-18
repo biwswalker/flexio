@@ -20,7 +20,8 @@
     "re:build-npm": "npm run clean && npm install && npm run build",
     "tsc:dev": "yarn dev & yarn tsc:watch",
     "tsc:watch": "tsc --noEmit --watch",
-    "tsc:print": "npx tsc --showConfig"
+    "tsc:print": "npx tsc --showConfig",
+    "build:docker": "docker buildx build --platform linux/amd64 -t biwswalker/flexio:latest --push ."
   },
   "engines": {
     "node": "20.x"
