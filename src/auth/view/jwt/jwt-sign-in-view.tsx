@@ -16,6 +16,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
+import { Logo } from 'src/components/logo';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
@@ -72,7 +73,6 @@ export function JwtSignInView() {
 
       router.refresh();
     } catch (error) {
-      console.error(error);
       const feedbackMessage = getErrorMessage(error);
       setErrorMessage(feedbackMessage);
     }
@@ -129,7 +129,7 @@ export function JwtSignInView() {
         loading={isSubmitting}
         loadingIndicator="กำลังเข้าสู่ระบบ..."
       >
-        เข้าสู่ระบบ
+        ลงชื่อเข้าใช้
       </LoadingButton>
     </Box>
   );
@@ -138,6 +138,7 @@ export function JwtSignInView() {
     <>
       <FormHead
         title="ลงชื่อเข้าใช้"
+        icon={<Logo disabled sx={{ height: 40 }} />}
         description={
           <>
             {/* {`Don’t have an account? `}
@@ -146,7 +147,7 @@ export function JwtSignInView() {
             </Link> */}
           </>
         }
-        sx={{ textAlign: { xs: 'center', md: 'left' } }}
+        sx={{ textAlign: 'center' }}
       />
       {!!errorMessage && (
         <Alert severity="error" sx={{ mb: 3 }}>

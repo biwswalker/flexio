@@ -1,5 +1,7 @@
 'use client';
 
+import { encryption } from 'src/utils/encryption';
+
 import axios, { endpoints } from 'src/lib/axios';
 
 import { setSession } from './utils';
@@ -23,14 +25,17 @@ export type SignUpParams = {
  *************************************** */
 export const signInWithPassword = async ({ email, password }: SignInParams): Promise<void> => {
   try {
-    const params = { email, password };
+    const params = { email };
+    const decryptedPassword = encryption(password);
 
-    const res = await axios.post(endpoints.auth.login, params);
+    const res = await axios.post(endpoints.auth.login, params, {
+      headers: { password: decryptedPassword },
+    });
 
     const { accessToken } = res.data;
 
     if (!accessToken) {
-      throw new Error('Access token not found in response');
+      throw new Error('ไม่พบข้อมูลผู้เข้าใช้งาน');
     }
 
     setSession(accessToken);

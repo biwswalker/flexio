@@ -4,6 +4,11 @@
 @import '@fontsource-variable/public-sans';
 
 @import '@fontsource/prompt';
+@import '@fontsource/prompt/300.css';
+@import '@fontsource/prompt/400.css';
+@import '@fontsource/prompt/500.css';
+@import '@fontsource/prompt/600.css';
+@import '@fontsource/prompt/700.css';
 
 @import '@fontsource/barlow/400.css';
 @import '@fontsource/barlow/500.css';
