@@ -138,7 +138,11 @@ export function JwtSignInView() {
     <>
       <FormHead
         title="ลงชื่อเข้าใช้"
-        icon={<Logo disabled sx={{ height: 40 }} />}
+        icon={
+          <Box>
+            <Logo disabled sx={{ height: 40 }} />
+          </Box>
+        }
         description={
           <>
             {/* {`Don’t have an account? `}

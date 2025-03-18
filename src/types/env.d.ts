@@ -5,7 +5,6 @@ declare namespace NodeJS {
     NEXT_PUBLIC_LOCAL_STORAGE_KEY: string;
     NEXT_PUBLIC_ASSETS_DIR: string;
     BUILD_STATIC_EXPORT: string;
-    NEXT_PUBLIC_JWT_SECRET_KEY: string;
-    NEXT_PUBLIC_AES_SECRET_KEY: string; // May using or not?
+    NEXT_PUBLIC_AES_SECRET_KEY: string;
   }
 }
