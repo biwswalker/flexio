@@ -22,7 +22,8 @@ jobs:
           NEXT_PUBLIC_SERVER_URL: ${{secrets.NEXT_PUBLIC_SERVER_URL}}
           NEXT_PUBLIC_AES_SECRET_KEY: ${{secrets.NEXT_PUBLIC_AES_SECRET_KEY}}
           NEXT_PUBLIC_LOCAL_STORAGE_KEY: ${{secrets.NEXT_PUBLIC_LOCAL_STORAGE_KEY}}
-        run: docker build . --file Dockerfile \
+        run: |
+          docker build . --file Dockerfile \
           --tag ${{secrets.DOCKER_USER}}/$(echo $IMAGE_NAME) \
           --build-arg NEXT_PUBLIC_VERSION=${{secrets.NEXT_PUBLIC_VERSION}} \
           --build-arg NEXT_PUBLIC_SERVER_URL=${{secrets.NEXT_PUBLIC_SERVER_URL}} \
