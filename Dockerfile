@@ -1,7 +1,7 @@
 FROM node:18-alpine AS builder
 WORKDIR /usr/src/flexio
 
-COPY package-lock.json package.json ./
+COPY package-lock.json package.json .env.local .env ./
 RUN npm install --frozen-lockfile
 COPY . .
 RUN npm run build
