@@ -18,10 +18,16 @@ jobs:
         run: docker login -u ${{secrets.DOCKER_USER}} -p ${{secrets.DOCKER_PASSWORD}}
       - name: Build the Docker image
         env:
+          NEXT_PUBLIC_VERSION: ${{secrets.NEXT_PUBLIC_VERSION}}
           NEXT_PUBLIC_SERVER_URL: ${{secrets.NEXT_PUBLIC_SERVER_URL}}
           NEXT_PUBLIC_AES_SECRET_KEY: ${{secrets.NEXT_PUBLIC_AES_SECRET_KEY}}
           NEXT_PUBLIC_LOCAL_STORAGE_KEY: ${{secrets.NEXT_PUBLIC_LOCAL_STORAGE_KEY}}
-        run: docker build . --file Dockerfile --tag ${{secrets.DOCKER_USER}}/$(echo $IMAGE_NAME)
+        run: docker build . --file Dockerfile \
+          --tag ${{secrets.DOCKER_USER}}/$(echo $IMAGE_NAME) \
+          --build-arg NEXT_PUBLIC_VERSION=${{secrets.NEXT_PUBLIC_VERSION}} \
+          --build-arg NEXT_PUBLIC_SERVER_URL=${{secrets.NEXT_PUBLIC_SERVER_URL}} \
+          --build-arg NEXT_PUBLIC_AES_SECRET_KEY=${{secrets.NEXT_PUBLIC_AES_SECRET_KEY}} \
+          --build-arg NEXT_PUBLIC_LOCAL_STORAGE_KEY=${{secrets.NEXT_PUBLIC_LOCAL_STORAGE_KEY}}
       - name: Docker push to Hub
         run: docker push $(echo $DOCKER_USER)/$(echo $IMAGE_NAME)
   deploy:
