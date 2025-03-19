@@ -16,14 +16,14 @@ jobs:
         uses: actions/checkout@v3
       - name: Docker login
         run: docker login -u ${{secrets.DOCKER_USER}} -p ${{secrets.DOCKER_PASSWORD}}
-      - name: Create environment
-        run: |
-          echo "NEXT_PUBLIC_SERVER_URL=${{secrets.NEXT_PUBLIC_SERVER_URL}}\nNEXT_PUBLIC_AES_SECRET_KEY=${{secrets.NEXT_PUBLIC_AES_SECRET_KEY}}\nNEXT_PUBLIC_LOCAL_STORAGE_KEY=${{secrets.NEXT_PUBLIC_LOCAL_STORAGE_KEY}}" > .env
-          cat .env
       - name: Build the Docker image
+        env:
+          NEXT_PUBLIC_SERVER_URL: ${{secrets.NEXT_PUBLIC_SERVER_URL}}
+          NEXT_PUBLIC_AES_SECRET_KEY: ${{secrets.NEXT_PUBLIC_AES_SECRET_KEY}}
+          NEXT_PUBLIC_LOCAL_STORAGE_KEY: ${{secrets.NEXT_PUBLIC_LOCAL_STORAGE_KEY}}
         run: docker build . --file Dockerfile --tag ${{secrets.DOCKER_USER}}/$(echo $IMAGE_NAME)
       - name: Docker push to Hub
-        run: docker push ${{secrets.DOCKER_USER}}/$(echo $IMAGE_NAME)
+        run: docker push $(echo $DOCKER_USER)/$(echo $IMAGE_NAME)
   deploy:
     needs: build
     runs-on: ubuntu-latest
