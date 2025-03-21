@@ -1,12 +1,15 @@
 import type { AxiosRequestConfig } from 'axios';
 
 import axios from 'axios';
+import applyCaseMiddleware from 'axios-case-converter';
 
 import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
 
-const axiosInstance = axios.create({ baseURL: CONFIG.serverUrl });
+const axiosInstance = applyCaseMiddleware(axios.create({ baseURL: CONFIG.serverUrl }), {
+  ignoreHeaders: true,
+});
 
 axiosInstance.interceptors.response.use(
   (response) => response,
