@@ -1,12 +1,12 @@
-export type UserType = Record<string, any> | null;
-
 export type AuthState = {
-  user: UserType;
+  user: (User & { accessToken: string }) | undefined;
+  companies: Company[];
   loading: boolean;
 };
 
 export type AuthContextValue = {
-  user: UserType;
+  user: User | undefined;
+  companies: Company[];
   loading: boolean;
   authenticated: boolean;
   unauthenticated: boolean;

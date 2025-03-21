@@ -1,6 +1,7 @@
 interface Company {
   id: string;
   name: string;
+  shortName: string;
   subDistrict: string;
   district: string;
   province: string;

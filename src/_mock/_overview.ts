@@ -177,30 +177,28 @@ export const _bankingContacts = Array.from({ length: 12 }, (_, index) => ({
   avatarUrl: _mock.image.avatar(index),
 }));
 
-export const _bankingCreditCard = [
+export const _bankingCreditCard: Account[] = [
   {
-    id: _mock.id(2),
+    id: _mock.id(1),
+    companyId: _mock.id(2),
+    bank: 'KBANK',
+    bankName: _mock.fullName(4),
+    bankNumber: '**** **** **** 3640',
+    bankBranch: 'หลัก',
     balance: 23432.03,
-    cardType: 'mastercard',
-    cardHolder: _mock.fullName(2),
-    cardNumber: '**** **** **** 3640',
-    cardValid: '11/22',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
   {
-    id: _mock.id(3),
+    id: _mock.id(1),
+    companyId: _mock.id(2),
+    bank: 'KBANK',
+    bankName: _mock.fullName(3),
+    bankNumber: '**** **** **** 8864',
+    bankBranch: 'หลัก',
     balance: 18000.23,
-    cardType: 'visa',
-    cardHolder: _mock.fullName(3),
-    cardNumber: '**** **** **** 8864',
-    cardValid: '11/25',
-  },
-  {
-    id: _mock.id(4),
-    balance: 2000.89,
-    cardType: 'mastercard',
-    cardHolder: _mock.fullName(4),
-    cardNumber: '**** **** **** 7755',
-    cardValid: '11/22',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
 ];
 

@@ -13,9 +13,12 @@ export type SignInParams = {
   password: string;
 };
 
-export interface SignInResponse {
+export interface MeResponse {
   user: User;
   companies: Company[];
+}
+
+export interface SignInResponse extends MeResponse {
   accessToken: string;
 }
 
@@ -45,6 +48,26 @@ export const signInWithPassword = async ({ email, password }: SignInParams): Pro
     }
 
     setSession(accessToken);
+  } catch (error) {
+    console.error('Error during sign in:', error);
+    throw error;
+  }
+};
+
+/** **************************************
+ * Me
+ *************************************** */
+export const me = async (): Promise<MeResponse> => {
+  try {
+    const response = await axios.get<APIResponse<MeResponse>>(endpoints.me);
+
+    const { data } = response.data;
+
+    if (!data) {
+      throw new Error('ไม่พบข้อมูลผู้เข้าใช้งาน');
+    }
+
+    return data;
   } catch (error) {
     console.error('Error during sign in:', error);
     throw error;
