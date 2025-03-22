@@ -23,6 +23,8 @@ export const paths = {
   },
   user: {
     root: ROOTS.USERS,
+    new: `${ROOTS.USERS}/new`,
+    edit: (userId: string) => `${ROOTS.USERS}/${userId}`,
     profile: ROOTS.PROFILE,
     setting: ROOTS.SETTING,
   },

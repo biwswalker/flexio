@@ -33,14 +33,14 @@ export function EmptyContent({
   filled,
   slotProps,
   description,
-  title = 'No data',
+  title = 'ไม่พบข้อมูล',
   ...other
 }: EmptyContentProps) {
   return (
     <ContentRoot filled={filled} sx={sx} {...other}>
       <Box
         component="img"
-        alt="Empty content"
+        alt="ไม่พบข้อมูล"
         src={imgUrl ?? `${CONFIG.assetsDir}/assets/icons/empty/ic-content.svg`}
         {...slotProps?.img}
         sx={[

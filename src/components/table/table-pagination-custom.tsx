@@ -25,6 +25,7 @@ export function TablePaginationCustom({
     <Box sx={[{ position: 'relative' }, ...(Array.isArray(sx) ? sx : [sx])]}>
       <TablePagination
         rowsPerPageOptions={rowsPerPageOptions}
+        labelRowsPerPage="จำนวนรายการต่อหน้า"
         component="div"
         {...other}
         sx={{ borderTopColor: 'transparent' }}
@@ -32,7 +33,7 @@ export function TablePaginationCustom({
 
       {onChangeDense && (
         <FormControlLabel
-          label="Dense"
+          label="ลดขนาดตาราง"
           control={
             <Switch checked={dense} onChange={onChangeDense} inputProps={{ id: 'dense-switch' }} />
           }
