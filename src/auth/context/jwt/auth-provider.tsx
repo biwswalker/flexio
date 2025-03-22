@@ -26,8 +26,16 @@ export function AuthProvider({ children }: Props) {
   const { state, setState } = useSetState<AuthState>({
     user: undefined,
     companies: [],
+    company: undefined,
     loading: true,
   });
+
+  const handleSetCompany = useCallback(
+    async (company: Company) => {
+      setState({ ...state, company });
+    },
+    [setState, state]
+  );
 
   const checkUserSession = useCallback(async () => {
     try {
@@ -40,6 +48,10 @@ export function AuthProvider({ children }: Props) {
 
         const { user, companies = [] } = response;
 
+        if (companies.length > 0) {
+          handleSetCompany(companies[0]);
+        }
+
         setState({ user: { ...user, accessToken }, companies, loading: false });
       } else {
         setState({ user: undefined, companies: [], loading: false });
@@ -48,13 +60,12 @@ export function AuthProvider({ children }: Props) {
       console.error(error);
       setState({ user: undefined, companies: [], loading: false });
     }
-  }, [setState]);
+  }, [setState, handleSetCompany]);
 
   useEffect(() => {
     checkUserSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   // ----------------------------------------------------------------------
 
   const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
@@ -65,12 +76,14 @@ export function AuthProvider({ children }: Props) {
     () => ({
       user: state.user ? { ...state.user, role: state.user?.role ?? 'FINANCIAL' } : undefined,
       companies: state.companies ?? [],
+      company: state.company,
+      setCompany: handleSetCompany,
       checkUserSession,
       loading: status === 'loading',
       authenticated: status === 'authenticated',
       unauthenticated: status === 'unauthenticated',
     }),
-    [checkUserSession, state.user, state.companies, status]
+    [state.user, state.companies, state.company, handleSetCompany, checkUserSession, status]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;

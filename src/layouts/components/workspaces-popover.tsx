@@ -12,24 +12,24 @@ import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 import ButtonBase from '@mui/material/ButtonBase';
 
+import { stringAvatar } from 'src/utils/image';
+
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
 
+import { useAuthContext } from 'src/auth/hooks';
+
 // ----------------------------------------------------------------------
 
 export type WorkspacesPopoverProps = ButtonBaseProps & {
-  data?: {
-    id: string;
-    name: string;
-    logo: string;
-    plan: string;
-  }[];
+  data?: Company[];
 };
 
 export function WorkspacesPopover({ data = [], sx, ...other }: WorkspacesPopoverProps) {
   const mediaQuery = 'sm';
 
+  const { setCompany, company } = useAuthContext();
   const { open, anchorEl, onClose, onOpen } = usePopover();
 
   const [workspace, setWorkspace] = useState(data[0]);
@@ -37,9 +37,10 @@ export function WorkspacesPopover({ data = [], sx, ...other }: WorkspacesPopover
   const handleChangeWorkspace = useCallback(
     (newValue: (typeof data)[0]) => {
       setWorkspace(newValue);
+      setCompany(newValue);
       onClose();
     },
-    [onClose]
+    [onClose, setCompany]
   );
 
   const buttonBg: SxProps<Theme> = {
@@ -77,11 +78,11 @@ export function WorkspacesPopover({ data = [], sx, ...other }: WorkspacesPopover
       ]}
       {...other}
     >
-      <Box
-        component="img"
-        alt={workspace?.name}
-        src={workspace?.logo}
-        sx={{ width: 24, height: 24, borderRadius: '50%' }}
+      <Avatar
+        {...stringAvatar(workspace.name)}
+        alt={workspace.name}
+        src={workspace.imageUrl}
+        sx={{ width: 24, height: 24, fontSize: 16 }}
       />
 
       <Box
@@ -91,16 +92,16 @@ export function WorkspacesPopover({ data = [], sx, ...other }: WorkspacesPopover
         {workspace?.name}
       </Box>
 
-      <Label
-        color={workspace?.plan === 'Free' ? 'default' : 'info'}
+      {/* <Label
+        color="info"
         sx={{
           height: 22,
           cursor: 'inherit',
           display: { xs: 'none', [mediaQuery]: 'inline-flex' },
         }}
       >
-        {workspace?.plan}
-      </Label>
+        ใช้งาน
+      </Label> */}
 
       <Iconify width={16} icon="carbon:chevron-sort" sx={{ color: 'text.disabled' }} />
     </ButtonBase>
@@ -124,13 +125,18 @@ export function WorkspacesPopover({ data = [], sx, ...other }: WorkspacesPopover
             onClick={() => handleChangeWorkspace(option)}
             sx={{ height: 48 }}
           >
-            <Avatar alt={option.name} src={option.logo} sx={{ width: 24, height: 24 }} />
+            <Avatar
+              {...stringAvatar(option.name)}
+              alt={option.name}
+              src={option.imageUrl}
+              sx={{ width: 24, height: 24, fontSize: 16 }}
+            />
 
             <Box component="span" sx={{ flexGrow: 1, fontWeight: 'fontWeightMedium' }}>
               {option.name}
             </Box>
 
-            <Label color={option.plan === 'Free' ? 'default' : 'info'}>{option.plan}</Label>
+            {company?.id === option.id && <Label color="info">ใช้งาน</Label>}
           </MenuItem>
         ))}
       </MenuList>

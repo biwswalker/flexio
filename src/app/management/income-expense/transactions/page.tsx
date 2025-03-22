@@ -6,7 +6,7 @@ import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
 
-export const metadata: Metadata = { title: `รายชื่อบริษัท - ${CONFIG.appName}` };
+export const metadata: Metadata = { title: `รายการรายรับ/รายจ่าย - ${CONFIG.appName}` };
 
 export default function Page() {
   return <></>;

@@ -28,6 +28,7 @@ import { MenuButton } from '../components/menu-button';
 import { HeaderSection } from '../core/header-section';
 import { LayoutSection } from '../core/layout-section';
 import { AccountDrawer } from '../components/account-drawer';
+import { WorkspacesPopover } from '../components/workspaces-popover';
 import { dashboardLayoutVars, dashboardNavColorVars } from './css-vars';
 import { navMenuData as dashboardNavData } from '../nav-config-dashboard';
 
@@ -58,7 +59,7 @@ export function DashboardLayout({
   layoutQuery = 'lg',
 }: DashboardLayoutProps) {
   const theme = useTheme();
-  const { companies, user } = useAuthContext();
+  const { companies } = useAuthContext();
 
   const settings = useSettingsContext();
 
@@ -121,10 +122,10 @@ export function DashboardLayout({
           )}
 
           {/** @slot Workspace popover */}
-          {/* <WorkspacesPopover
-            data={_workspaces}
+          <WorkspacesPopover
+            data={companies}
             sx={{ color: 'var(--layout-nav-text-primary-color)' }}
-          /> */}
+          />
         </>
       ),
       rightArea: (
