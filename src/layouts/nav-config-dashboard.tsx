@@ -1,4 +1,4 @@
-import type { NavSectionProps } from 'src/components/nav-section';
+import type { NavSectionProps, NavItemDataProps } from 'src/components/nav-section';
 
 import { paths } from 'src/routes/paths';
 
@@ -43,38 +43,113 @@ const ICONS = {
 };
 
 // ----------------------------------------------------------------------
-
-export const navData: NavSectionProps['data'] = [
-  /**
-   * Overview
-   */
-  {
-    subheader: 'Overview',
-    items: [
-      {
-        title: 'One',
-        path: paths.dashboard.root,
-        icon: ICONS.dashboard,
-        info: <Label>v{CONFIG.appVersion}</Label>,
-      },
-    ],
-  },
-  /**
-   * Management
-   */
-  // {
-  //   subheader: 'Management',
-  //   items: [
-  //     {
-  //       title: 'Group',
-  //       path: paths.dashboard.group.root,
-  //       icon: ICONS.user,
-  //       children: [
-  //         { title: 'Four', path: paths.dashboard.group.root },
-  //         { title: 'Five', path: paths.dashboard.group.five },
-  //         { title: 'Six', path: paths.dashboard.group.six },
-  //       ],
-  //     },
-  //   ],
-  // },
-];
+export const navMenuData = (companies: Company[], projects: Project[]): NavSectionProps['data'] => {
+  const companieMenus: NavItemDataProps[] = companies.map((company) => ({
+    title: company.name,
+    path: paths.management.companies.detail(company.id),
+    // path: paths.management.companies.detail(company.shortName),
+  }));
+  const projectMenus: NavItemDataProps[] = projects.map((project) => ({
+    title: project.name,
+    path: paths.management.companies.detail(project.shortName),
+  }));
+  return [
+    /**
+     * Overview
+     */
+    {
+      subheader: 'Overview',
+      items: [
+        {
+          title: 'แดชบอร์ด',
+          path: paths.dashboard.root,
+          icon: ICONS.dashboard,
+          // info: <Label>v{CONFIG.appVersion}</Label>,
+        },
+        {
+          title: 'ผู้ใช้งานระบบ',
+          path: paths.user.root,
+          icon: ICONS.user,
+        },
+      ],
+    },
+    /**
+     * Management
+     */
+    {
+      subheader: 'การจัดการ',
+      items: [
+        {
+          title: 'บริษัท',
+          path: paths.management.companies.root,
+          icon: ICONS.banking,
+          info:
+            companieMenus.length > 0 ? (
+              <Label color="info" variant="soft">
+                {companieMenus.length}
+              </Label>
+            ) : null,
+          children: [
+            ...companieMenus,
+            {
+              title: 'เพิ่มบริษัท',
+              path: paths.management.companies.new,
+              icon: ICONS.blank,
+            },
+          ],
+        },
+        {
+          title: 'โครงการ',
+          path: paths.management.projects.root,
+          icon: ICONS.product,
+          info:
+            projectMenus.length > 0 ? (
+              <Label color="info" variant="soft">
+                {projectMenus.length}
+              </Label>
+            ) : null,
+          children: [
+            ...projectMenus,
+            {
+              title: 'เพิ่มโครงการ',
+              path: paths.management.projects.new,
+              icon: ICONS.blank,
+            },
+          ],
+          disabled: true,
+        },
+        {
+          title: 'รายรับ/รายจ่าย',
+          path: paths.management.incomeExpense.root,
+          icon: ICONS.invoice,
+          children: [
+            {
+              title: 'รายการรายรับ/รายจ่าย',
+              path: paths.management.incomeExpense.transactions,
+            },
+          ],
+        },
+        {
+          title: 'เอกสาร',
+          path: paths.management.documents.root,
+          icon: ICONS.blog,
+          disabled: true,
+          children: [
+            {
+              title: 'ใบเสนอราคา',
+              path: paths.management.documents.quotations,
+            },
+            {
+              title: 'ใบแจ้งหนี้',
+              path: paths.management.documents.invoices,
+            },
+            {
+              title: 'ใบเสร็จรับเงิน',
+              path: paths.management.documents.receives,
+            },
+          ],
+        },
+      ],
+    },
+  ];
+};

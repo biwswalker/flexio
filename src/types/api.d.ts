@@ -1,4 +1,4 @@
-interface Response<T = any> {
+interface APIResponse<T = any> {
   data: T;
   message: string;
   success: boolean;

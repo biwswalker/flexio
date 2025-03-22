@@ -1,11 +1,11 @@
 import { fSub } from 'src/utils/format-time';
 
 import { CONFIG } from 'src/global-config';
+import { USER_ROLE } from 'src/constants/user';
 
 import {
   _id,
   _ages,
-  _roles,
   _prices,
   _emails,
   _ratings,
@@ -39,7 +39,7 @@ export const _mock = {
   id: (index: number) => _id[index],
   time: (index: number) => fSub({ days: index, hours: index }),
   boolean: (index: number) => _booleans[index],
-  role: (index: number) => _roles[index],
+  role: (index: number) => USER_ROLE[index],
   // Text
   courseNames: (index: number) => _courseNames[index],
   fileNames: (index: number) => _fileNames[index],
