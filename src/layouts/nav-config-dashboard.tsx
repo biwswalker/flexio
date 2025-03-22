@@ -46,7 +46,8 @@ const ICONS = {
 export const navMenuData = (companies: Company[], projects: Project[]): NavSectionProps['data'] => {
   const companieMenus: NavItemDataProps[] = companies.map((company) => ({
     title: company.name,
-    path: paths.management.companies.detail(company.shortName),
+    path: paths.management.companies.detail(company.id),
+    // path: paths.management.companies.detail(company.shortName),
   }));
   const projectMenus: NavItemDataProps[] = projects.map((project) => ({
     title: project.name,
@@ -115,6 +116,7 @@ export const navMenuData = (companies: Company[], projects: Project[]): NavSecti
               icon: ICONS.blank,
             },
           ],
+          disabled: true,
         },
         {
           title: 'รายรับ/รายจ่าย',
@@ -131,6 +133,7 @@ export const navMenuData = (companies: Company[], projects: Project[]): NavSecti
           title: 'เอกสาร',
           path: paths.management.documents.root,
           icon: ICONS.blog,
+          disabled: true,
           children: [
             {
               title: 'ใบเสนอราคา',

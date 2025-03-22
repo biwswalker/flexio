@@ -33,6 +33,9 @@ export const paths = {
       root: `${ROOTS.MANAGEMENT}/companies`,
       new: `${ROOTS.MANAGEMENT}/companies/new`,
       detail: (shortName: string) => `${ROOTS.MANAGEMENT}/companies/${shortName}`,
+      edit: (shortName: string) => `${ROOTS.MANAGEMENT}/companies/${shortName}/edit`,
+      users: (shortName: string) => `${ROOTS.MANAGEMENT}/companies/${shortName}/users`,
+      accounts: (shortName: string) => `${ROOTS.MANAGEMENT}/companies/${shortName}/accounts`,
     },
     projects: {
       root: `${ROOTS.MANAGEMENT}/projects`,

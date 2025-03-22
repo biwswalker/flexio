@@ -14,7 +14,7 @@ type Props = {
 
 export default async function Page({ params }: Props) {
   const { id } = params;
-  // id
+
   // const currentUser = await Promise.resolve({})
 
   return <UserEditView user={undefined} />;
