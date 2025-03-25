@@ -1,13 +1,27 @@
 FROM node:18-alpine AS builder
 WORKDIR /usr/src/flexio
 
-COPY package-lock.json package.json .env.local .env ./
-RUN npm install --frozen-lockfile
+# Define build-time arguments for environment variables
+ARG NEXT_PUBLIC_VERSION
+ARG NEXT_PUBLIC_SERVER_URL
+ARG NEXT_PUBLIC_AES_SECRET_KEY
+ARG NEXT_PUBLIC_LOCAL_STORAGE_KEY
+
+# Pass build-time arguments to the environment variables during the build process
+ENV NEXT_PUBLIC_VERSION=$NEXT_PUBLIC_VERSION
+ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
+ENV NEXT_PUBLIC_AES_SECRET_KEY=$NEXT_PUBLIC_AES_SECRET_KEY
+ENV NEXT_PUBLIC_LOCAL_STORAGE_KEY=$NEXT_PUBLIC_LOCAL_STORAGE_KEY
+
+COPY package-lock.json package.json ./
+RUN npm ci --frozen-lockfile
+
 COPY . .
 RUN npm run build
 
 FROM node:18-alpine AS runner
 WORKDIR /usr/src/flexio
+
 COPY --from=builder /usr/src/flexio/package.json .
 COPY --from=builder /usr/src/flexio/package-lock.json .
 COPY --from=builder /usr/src/flexio/next.config.mjs .

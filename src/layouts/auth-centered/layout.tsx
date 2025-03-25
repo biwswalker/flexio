@@ -6,6 +6,7 @@ import { merge } from 'es-toolkit';
 
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
+import { Typography } from '@mui/material';
 
 import { CONFIG } from 'src/global-config';
 
@@ -58,6 +59,9 @@ export function AuthCenteredLayout({
       ),
       rightArea: (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
+          <Typography color="text.secondary" variant="caption">
+            เวอร์ชั่น {process.env.NEXT_PUBLIC_VERSION || '0.0.0'}
+          </Typography>
           {/** @slot Help link */}
           {/* <Link
             href={paths.faqs}
