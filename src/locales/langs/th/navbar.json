@@ -1,0 +1,12 @@
+{
+  "app": "แอพพลิเคชั่น",
+  "job": "งาน",
+  "user": "ผู้ใช้",
+  "travel": "เที่ยว",
+  "invoice": "Facture",
+  "blog": {
+    "title": "Blog",
+    "caption": "Raccourcis clavier personnalisés."
+  },
+  "subheader": "Sous-titre"
+}

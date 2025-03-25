@@ -46,6 +46,11 @@ export const paths = {
       root: `${ROOTS.MANAGEMENT}/income-expense`,
       transactions: `${ROOTS.MANAGEMENT}/income-expense/transactions`,
       expense: `${ROOTS.MANAGEMENT}/income-expense/expense`,
+      // Expense
+      detail: (shortName: string) => `${ROOTS.MANAGEMENT}/companies/${shortName}`,
+      edit: (shortName: string) => `${ROOTS.MANAGEMENT}/companies/${shortName}/edit`,
+      users: (shortName: string) => `${ROOTS.MANAGEMENT}/companies/${shortName}/users`,
+      accounts: (shortName: string) => `${ROOTS.MANAGEMENT}/companies/${shortName}/accounts`,
     },
     documents: {
       root: `${ROOTS.MANAGEMENT}/documents`,

@@ -1,3 +1,5 @@
+import { formatNumberLocale } from 'src/locales';
+
 // ----------------------------------------------------------------------
 
 /*
@@ -19,10 +21,12 @@ function processInput(inputValue: InputNumberValue): number | null {
 // ----------------------------------------------------------------------
 
 export function fNumber(inputValue: InputNumberValue, options?: Options) {
+  const locale = formatNumberLocale() || DEFAULT_LOCALE;
+
   const number = processInput(inputValue);
   if (number === null) return '';
 
-  const fm = new Intl.NumberFormat(DEFAULT_LOCALE.code, {
+  const fm = new Intl.NumberFormat(locale.code, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
     ...options,
@@ -34,12 +38,14 @@ export function fNumber(inputValue: InputNumberValue, options?: Options) {
 // ----------------------------------------------------------------------
 
 export function fCurrency(inputValue: InputNumberValue, options?: Options) {
+  const locale = formatNumberLocale() || DEFAULT_LOCALE;
+
   const number = processInput(inputValue);
   if (number === null) return '';
 
-  const fm = new Intl.NumberFormat(DEFAULT_LOCALE.code, {
+  const fm = new Intl.NumberFormat(locale.code, {
     style: 'currency',
-    currency: DEFAULT_LOCALE.currency,
+    currency: locale.currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
     ...options,
@@ -51,10 +57,12 @@ export function fCurrency(inputValue: InputNumberValue, options?: Options) {
 // ----------------------------------------------------------------------
 
 export function fPercent(inputValue: InputNumberValue, options?: Options) {
+  const locale = formatNumberLocale() || DEFAULT_LOCALE;
+
   const number = processInput(inputValue);
   if (number === null) return '';
 
-  const fm = new Intl.NumberFormat(DEFAULT_LOCALE.code, {
+  const fm = new Intl.NumberFormat(locale.code, {
     style: 'percent',
     minimumFractionDigits: 0,
     maximumFractionDigits: 1,
@@ -67,10 +75,12 @@ export function fPercent(inputValue: InputNumberValue, options?: Options) {
 // ----------------------------------------------------------------------
 
 export function fShortenNumber(inputValue: InputNumberValue, options?: Options) {
+  const locale = formatNumberLocale() || DEFAULT_LOCALE;
+
   const number = processInput(inputValue);
   if (number === null) return '';
 
-  const fm = new Intl.NumberFormat(DEFAULT_LOCALE.code, {
+  const fm = new Intl.NumberFormat(locale.code, {
     notation: 'compact',
     maximumFractionDigits: 2,
     ...options,
