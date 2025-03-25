@@ -8,9 +8,16 @@ import TableCell from '@mui/material/TableCell';
 export type TableEmptyRowsProps = TableRowProps & {
   height?: number;
   emptyRows: number;
+  colSpan?: number;
 };
 
-export function TableEmptyRows({ emptyRows, height, sx, ...other }: TableEmptyRowsProps) {
+export function TableEmptyRows({
+  emptyRows,
+  height,
+  colSpan = 9,
+  sx,
+  ...other
+}: TableEmptyRowsProps) {
   if (!emptyRows) {
     return null;
   }
@@ -25,7 +32,7 @@ export function TableEmptyRows({ emptyRows, height, sx, ...other }: TableEmptyRo
       ]}
       {...other}
     >
-      <TableCell colSpan={9} />
+      <TableCell colSpan={colSpan} />
     </TableRow>
   );
 }
