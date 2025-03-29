@@ -17,3 +17,8 @@ export const getUserRoleName = (role: TRole) => {
       return '';
   }
 };
+
+export const getUserStatusName = (status: TUserStatus) => {
+  const _status = USER_STATUS_OPTIONS.find((_option) => _option.value === status);
+  return _status?.label ?? '';
+};

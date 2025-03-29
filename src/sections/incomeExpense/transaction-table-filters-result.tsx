@@ -7,9 +7,9 @@ import Chip from '@mui/material/Chip';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-result';
+import { getBankName, PAYMENT_METHOD_OPTIONS } from 'src/constants/account';
 
-import { getBankName, PAYMENT_METHOD_OPTIONS } from './constants';
+import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-result';
 
 // ----------------------------------------------------------------------
 

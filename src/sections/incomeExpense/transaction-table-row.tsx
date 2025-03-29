@@ -12,11 +12,15 @@ import ListItemText from '@mui/material/ListItemText';
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fTime } from 'src/utils/format-time';
 
+import {
+  getPaymentMethodText,
+  getTransactionTypeText,
+  getTransactionTypeColor,
+} from 'src/constants/account';
+
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomPopover } from 'src/components/custom-popover';
-
-import { getPaymentMethodText, getTransactionTypeText, getTransactionTypeColor } from './constants';
 
 // ----------------------------------------------------------------------
 

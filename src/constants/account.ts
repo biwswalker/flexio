@@ -8,20 +8,10 @@ export const transactionTypes: Record<TTransactionType, string> = {
   EXPENSE: 'รายจ่าย',
 };
 
-export const getPaymentMethodText = (paymentMethod: TPaymentMethod) =>
-  paymentMethods[paymentMethod] || '';
-
-export const getTransactionTypeText = (txType: TTransactionType) => transactionTypes[txType] || '';
-export const getTransactionTypeColor = (txType: TTransactionType) =>
-  txType === 'INCOME' ? 'success.main' : 'error.main';
-
-export const getBankName = (value: string, onlyName = false) => {
-  const _bank = BANK_PROVIDER.find((bank) => bank.value === value);
-  if (onlyName && _bank) {
-    return _bank.label.replace('ธนาคาร', '')?.trim();
-  }
-  return _bank?.label || '';
-};
+export const ACCOUNT_STATUS_OPTIONS = [
+  { value: 'ACTIVE', label: 'ใช้งาน' },
+  { value: 'INACTIVE', label: 'ห้ามใช้งาน' },
+];
 
 export const TRANSACTION_TYPE_OPTIONS = [
   { label: 'รายรับ', value: 'INCOME' },
@@ -48,3 +38,26 @@ export const BANK_PROVIDER = [
   { value: 'GHB', label: 'ธนาคารอาคารสงเคราะห์' },
   { value: 'BACC', label: 'ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร' },
 ];
+
+export const getAccountStatusName = (status: TAccountStatus) => {
+  const _status = ACCOUNT_STATUS_OPTIONS.find((_option) => _option.value === status);
+  return _status?.label ?? '';
+};
+
+export const getPaymentMethodText = (paymentMethod: TPaymentMethod) =>
+  paymentMethods[paymentMethod] || '';
+
+export const getTransactionTypeText = (txType: TTransactionType) => transactionTypes[txType] || '';
+export const getTransactionTypeColor = (txType: TTransactionType) =>
+  txType === 'INCOME' ? 'success.main' : 'error.main';
+
+export const getAccountStatusColor = (status: string) =>
+  status === 'ACTIVE' ? 'success' : 'warning';
+
+export const getBankName = (value: string, onlyName = false) => {
+  const _bank = BANK_PROVIDER.find((bank) => bank.value === value);
+  if (onlyName && _bank) {
+    return _bank.label.replace('ธนาคาร', '')?.trim();
+  }
+  return _bank?.label || '';
+};

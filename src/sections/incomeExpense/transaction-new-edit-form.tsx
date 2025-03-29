@@ -24,14 +24,17 @@ import { useRouter } from 'src/routes/hooks';
 
 import { MAX_FILE_UPLOAD } from 'src/constants/file';
 import { addTransaction } from 'src/services/transaction';
+import {
+  getBankName,
+  PAYMENT_METHOD_OPTIONS,
+  TRANSACTION_TYPE_OPTIONS,
+} from 'src/constants/account';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { useAuthContext } from 'src/auth/hooks';
-
-import { getBankName, PAYMENT_METHOD_OPTIONS, TRANSACTION_TYPE_OPTIONS } from './constants';
 
 // ----------------------------------------------------------------------
 export type NewTransactionSchemaType = zod.infer<typeof NewTransactionSchema>;

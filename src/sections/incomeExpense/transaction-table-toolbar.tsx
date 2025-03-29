@@ -17,10 +17,10 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { formHelperTextClasses } from '@mui/material/FormHelperText';
 
+import { getBankName, PAYMENT_METHOD_OPTIONS } from 'src/constants/account';
+
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
-
-import { getBankName, PAYMENT_METHOD_OPTIONS } from './constants';
 
 // ----------------------------------------------------------------------
 type Props = {

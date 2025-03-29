@@ -1,18 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 import { getCompany } from 'src/services/company';
 
 import { LoadingScreen } from 'src/components/loading-screen';
 
-import { CompanyLayout } from '../company-layout';
-import { NewCompanyForm } from '../company-new-edit-form';
+import { UserTableView } from 'src/sections/user/view';
 
 // ----------------------------------------------------------------------
 
-export function CompanyEditView() {
+export function CompanyUsersView() {
   const params = useParams();
   const shortName = String(params.id);
   const [company, setCompany] = useState<Company | undefined>(undefined);
@@ -31,9 +30,5 @@ export function CompanyEditView() {
     return <LoadingScreen />;
   }
 
-  return (
-    <CompanyLayout>
-      <NewCompanyForm company={company} />
-    </CompanyLayout>
-  );
+  return <UserTableView companyId={company?.id} />;
 }

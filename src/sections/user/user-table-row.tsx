@@ -14,7 +14,7 @@ import IconButton from '@mui/material/IconButton';
 
 import { RouterLink } from 'src/routes/components';
 
-import { getUserRoleName } from 'src/constants/user';
+import { getUserRoleName, getUserStatusName } from 'src/constants/user';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -70,7 +70,7 @@ export function UserTableRow({
             disabled={disabled}
           >
             <Iconify icon="solar:pen-bold" />
-            Edit
+            แก้ไข
           </MenuItem>
         </li>
 
@@ -136,7 +136,7 @@ export function UserTableRow({
               'default'
             }
           >
-            {row.status}
+            {getUserStatusName(row.status)}
           </Label>
         </TableCell>
 
