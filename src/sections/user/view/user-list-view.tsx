@@ -10,11 +10,14 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+import { useAuthContext } from 'src/auth/hooks';
+
 import { UserTableView } from './user-table-view';
 
 // ----------------------------------------------------------------------
 
 export function UserListView() {
+  const { company } = useAuthContext();
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -32,7 +35,7 @@ export function UserListView() {
         }
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-      <UserTableView />
+      <UserTableView companyId={company?.id} />
     </DashboardContent>
   );
 }

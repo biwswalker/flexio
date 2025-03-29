@@ -2,8 +2,9 @@
 
 import type { TableHeadCellProps } from 'src/components/table';
 
-import { useState, useCallback } from 'react';
+import { isEqual } from 'es-toolkit';
 import { varAlpha } from 'minimal-shared/utils';
+import { useState, useEffect, useCallback } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
@@ -18,6 +19,7 @@ import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 
+import { getUsers } from 'src/services/user';
 import { USER_ROLE, USER_STATUS_OPTIONS } from 'src/constants/user';
 
 import { Label } from 'src/components/label';
@@ -30,12 +32,13 @@ import {
   emptyRows,
   rowInPage,
   TableNoData,
-  getComparator,
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
+
+import { useAuthContext } from 'src/auth/hooks';
 
 import { UserTableRow } from '../user-table-row';
 import { UserTableToolbar } from '../user-table-toolbar';
@@ -59,30 +62,35 @@ type Props = {
 };
 
 export function UserTableView({ companyId }: Props) {
-  const _companyId = companyId || ''; // get default from context
+  const { user } = useAuthContext();
+  const _companyId = companyId ?? ''; // get default from context
   const table = useTable();
 
   const confirmDialog = useBoolean();
 
-  const [tableData, setTableData] = useState<User[]>([]);
+  const [tableData, setTableData] = useState<UserResponse[]>([]);
 
-  const filters = useSetState<FilterUser>({ name: '', roles: [], status: 'ALL' });
+  const filters = useSetState<FilterUser>({
+    name: '',
+    roles: [],
+    status: 'ALL',
+    companyIds: [_companyId],
+  });
   const { state: currentFilters, setState: updateFilters } = filters;
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters: currentFilters,
-  });
-
-  const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
+  const dataInPage = rowInPage(tableData, table.page, table.rowsPerPage);
 
   const canReset =
     !!currentFilters.name ||
     (currentFilters.roles?.length || 0) > 0 ||
     currentFilters.status !== 'ALL';
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length;
+
+  const handleGetUsers = useCallback(async (params?: Partial<FilterUser>) => {
+    const users = await getUsers(params);
+    setTableData(users);
+  }, []);
 
   const handleDeleteRow = useCallback(
     (id: string) => {
@@ -104,8 +112,8 @@ export function UserTableView({ companyId }: Props) {
 
     setTableData(deleteRows);
 
-    table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+    table.onUpdatePageDeleteRows(dataInPage.length, tableData.length);
+  }, [dataInPage.length, table, tableData]);
 
   const handleFilterStatus = useCallback(
     (event: React.SyntheticEvent, newValue: TUserStatus) => {
@@ -114,6 +122,11 @@ export function UserTableView({ companyId }: Props) {
     },
     [updateFilters, table]
   );
+
+  useEffect(() => {
+    console.log('Filter users!!!', currentFilters);
+    handleGetUsers(currentFilters);
+  }, [currentFilters, handleGetUsers]);
 
   const renderConfirmDialog = () => (
     <ConfirmDialog
@@ -172,7 +185,7 @@ export function UserTableView({ companyId }: Props) {
                   }
                 >
                   {['ACTIVE', 'INACTIVE'].includes(tab.value)
-                    ? tableData.filter((user) => user.status === tab.value).length
+                    ? tableData.filter((_user) => _user.status === tab.value).length
                     : tableData.length}
                 </Label>
               }
@@ -189,7 +202,7 @@ export function UserTableView({ companyId }: Props) {
         {canReset && (
           <UserTableFiltersResult
             filters={filters}
-            totalResults={dataFiltered.length}
+            totalResults={tableData.length}
             onResetPage={table.onResetPage}
             sx={{ p: 2.5, pt: 0 }}
           />
@@ -199,11 +212,11 @@ export function UserTableView({ companyId }: Props) {
           <TableSelectedAction
             dense={table.dense}
             numSelected={table.selected.length}
-            rowCount={dataFiltered.length}
+            rowCount={tableData.length}
             onSelectAllRows={(checked) =>
               table.onSelectAllRows(
                 checked,
-                dataFiltered.map((row) => row.id)
+                tableData.map((row) => row.id)
               )
             }
             action={
@@ -221,31 +234,37 @@ export function UserTableView({ companyId }: Props) {
                 order={table.order}
                 orderBy={table.orderBy}
                 headCells={TABLE_HEAD}
-                rowCount={dataFiltered.length}
+                rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
               />
 
               <TableBody>
-                {dataFiltered
+                {tableData
                   .slice(
                     table.page * table.rowsPerPage,
                     table.page * table.rowsPerPage + table.rowsPerPage
                   )
-                  .map((row) => (
-                    <UserTableRow
-                      key={row.id}
-                      row={row}
-                      selected={table.selected.includes(row.id)}
-                      onSelectRow={() => table.onSelectRow(row.id)}
-                      onDeleteRow={() => handleDeleteRow(row.id)}
-                      editHref={paths.user?.edit(row.id)}
-                    />
-                  ))}
+                  .map((row) => {
+                    const isOwner = row.role === 'OWNER';
+                    const _disabled =
+                      user?.role === 'OWNER' ? false : isOwner ? true : isEqual(user?.id, row.id);
+                    return (
+                      <UserTableRow
+                        key={row.id}
+                        row={row}
+                        disabled={_disabled}
+                        selected={table.selected.includes(row.id)}
+                        onSelectRow={() => table.onSelectRow(row.id)}
+                        onDeleteRow={() => handleDeleteRow(row.id)}
+                        editHref={paths.user?.edit(row.id)}
+                      />
+                    );
+                  })}
 
                 <TableEmptyRows
                   height={table.dense ? 56 : 56 + 20}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
                 />
 
                 <TableNoData notFound={notFound} />
@@ -257,7 +276,7 @@ export function UserTableView({ companyId }: Props) {
         <TablePaginationCustom
           page={table.page}
           dense={table.dense}
-          count={dataFiltered.length}
+          count={tableData.length}
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           onChangeDense={table.onChangeDense}
@@ -268,40 +287,4 @@ export function UserTableView({ companyId }: Props) {
       {renderConfirmDialog()}
     </>
   );
-}
-
-// ----------------------------------------------------------------------
-
-type ApplyFilterProps = {
-  inputData: User[];
-  filters: FilterUser;
-  comparator: (a: any, b: any) => number;
-};
-
-function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
-  const { name, status, roles = [] } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index] as const);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (name) {
-    inputData = inputData.filter((user) => user.name.toLowerCase().includes(name.toLowerCase()));
-  }
-
-  if (status !== 'ALL') {
-    inputData = inputData.filter((user) => user.status === status);
-  }
-
-  if (roles.length) {
-    inputData = inputData.filter((user) => roles.includes(user.role));
-  }
-
-  return inputData;
 }

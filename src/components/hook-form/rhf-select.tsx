@@ -91,6 +91,7 @@ type RHFMultiSelectProps = FormControlProps & {
     inputLabel?: InputLabelProps;
     helperText?: FormHelperTextProps;
   };
+  shouldDisableItem?: (value: string) => boolean;
 };
 
 export function RHFMultiSelect({
@@ -102,6 +103,7 @@ export function RHFMultiSelect({
   placeholder,
   slotProps,
   helperText,
+  shouldDisableItem,
   ...other
 }: RHFMultiSelectProps) {
   const { control } = useFormContext();
@@ -121,7 +123,11 @@ export function RHFMultiSelect({
 
         const renderOptions = () =>
           options.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
+            <MenuItem
+              key={option.value}
+              value={option.value}
+              disabled={typeof shouldDisableItem === 'function' && shouldDisableItem(option.value)}
+            >
               {checkbox && (
                 <Checkbox
                   size="small"

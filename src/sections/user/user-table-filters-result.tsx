@@ -5,6 +5,8 @@ import { useCallback } from 'react';
 
 import Chip from '@mui/material/Chip';
 
+import { getUserRoleName } from 'src/constants/user';
+
 import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-result';
 
 // ----------------------------------------------------------------------
@@ -55,7 +57,12 @@ export function UserTableFiltersResult({ filters, onResetPage, totalResults, sx 
 
       <FiltersBlock label="บทบาท (Role):" isShow={!!currentFilters.roles?.length}>
         {currentFilters.roles?.map((item) => (
-          <Chip {...chipProps} key={item} label={item} onDelete={() => handleRemoveRole(item)} />
+          <Chip
+            {...chipProps}
+            key={item}
+            label={getUserRoleName(item)}
+            onDelete={() => handleRemoveRole(item)}
+          />
         ))}
       </FiltersBlock>
 

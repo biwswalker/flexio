@@ -151,7 +151,6 @@ export function TransactionListView() {
   }, [dataInPage.length, table, tableData]);
 
   useEffect(() => {
-    handleGetTransactions();
     getMasterData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
