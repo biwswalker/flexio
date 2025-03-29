@@ -1,24 +1,41 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+
 import Grid from '@mui/material/Grid2';
 
 import { CONFIG } from 'src/global-config';
+import { getCompany } from 'src/services/company';
+
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { SummaryCard } from '../summary-card';
 import { CompanyLayout } from '../company-layout';
 
 // ----------------------------------------------------------------------
-type Props = {
-  company: Company;
-};
 
-export function CompanyDetailView({ company }: Props) {
+export function CompanyDetailView() {
+  const params = useParams();
+  const shortName = String(params.id);
+  const [company, setCompany] = useState<Company | undefined>(undefined);
+
+  useEffect(() => {
+    handleGetCompany();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleGetCompany = async () => {
+    const _company = await getCompany(shortName);
+    setCompany(_company);
+  };
+
+  if (!company) {
+    return <LoadingScreen />;
+  }
+
   return (
-    <CompanyLayout company={company}>
-      {/* <Typography variant="h4" sx={{ mb: { xs: 3, md: 5 } }}>
-        Hi, Welcome back 👋
-      </Typography> */}
-
+    <CompanyLayout>
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <SummaryCard

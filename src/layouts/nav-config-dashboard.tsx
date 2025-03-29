@@ -46,8 +46,7 @@ const ICONS = {
 export const navMenuData = (companies: Company[], projects: Project[]): NavSectionProps['data'] => {
   const companieMenus: NavItemDataProps[] = companies.map((company) => ({
     title: company.name,
-    path: paths.management.companies.detail(company.id),
-    // path: paths.management.companies.detail(company.shortName),
+    path: paths.management.companies.detail(company.shortName),
   }));
   const projectMenus: NavItemDataProps[] = projects.map((project) => ({
     title: project.name,

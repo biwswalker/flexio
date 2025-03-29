@@ -1,55 +1,59 @@
 'use client';
 
 import { useMemo } from 'react';
+import * as changeCase from 'change-case';
 import { removeLastSlash } from 'minimal-shared/utils';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 
 import { paths } from 'src/routes/paths';
-import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
+import { useParams, usePathname } from 'src/routes/hooks';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-
 // ----------------------------------------------------------------------
 
 type Props = {
-  company: Company;
   children: React.ReactNode;
 };
 
-export function CompanyLayout({ company, children }: Props) {
-  const { name, id } = company;
+export function CompanyLayout({ children }: Props) {
+  const params = useParams();
+  const shortName = String(params.id);
   const pathname = usePathname();
 
   const NAV_ITEMS = useMemo(
     () => [
       {
         label: 'สรุปรายละเอียด',
-        href: paths.management.companies.detail(id),
+        href: paths.management.companies.detail(shortName),
       },
       {
         label: 'ข้อมูลบริษัท',
-        href: `${paths.management.companies.edit(id)}`,
+        href: `${paths.management.companies.edit(shortName)}`,
       },
       {
         label: 'รายชื่อผู้ใช้งาน',
-        href: `${paths.management.companies.users(id)}`,
+        href: `${paths.management.companies.users(shortName)}`,
       },
       {
         label: 'บัญชีธนาคาร',
-        href: `${paths.management.companies.accounts(id)}`,
+        href: `${paths.management.companies.accounts(shortName)}`,
       },
     ],
-    [id]
+    [shortName]
   );
 
   return (
     <DashboardContent>
-      <CustomBreadcrumbs heading={name} links={[{ name: 'รายละเอียดบริษัท' }]} sx={{ mb: 3 }} />
+      <CustomBreadcrumbs
+        heading={changeCase.sentenceCase(shortName)}
+        links={[{ name: 'รายละเอียดบริษัท' }]}
+        sx={{ mb: 3 }}
+      />
 
       <Tabs value={removeLastSlash(pathname)} sx={{ mb: { xs: 3, md: 5 } }}>
         {NAV_ITEMS.map((tab) => (

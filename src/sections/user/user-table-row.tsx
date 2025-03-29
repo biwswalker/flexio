@@ -14,6 +14,8 @@ import IconButton from '@mui/material/IconButton';
 
 import { RouterLink } from 'src/routes/components';
 
+import { getUserRoleName, getUserStatusName } from 'src/constants/user';
+
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -24,14 +26,22 @@ import { UserQuickEditForm } from './user-quick-edit-form';
 // ----------------------------------------------------------------------
 
 type Props = {
-  row: User;
+  disabled?: boolean;
+  row: UserResponse;
   selected: boolean;
   editHref: string;
   onSelectRow: () => void;
   onDeleteRow: () => void;
 };
 
-export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow }: Props) {
+export function UserTableRow({
+  disabled = false,
+  row,
+  selected,
+  editHref,
+  onSelectRow,
+  onDeleteRow,
+}: Props) {
   const menuActions = usePopover();
   const confirmDialog = useBoolean();
   const quickEditForm = useBoolean();
@@ -53,13 +63,19 @@ export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow
     >
       <MenuList>
         <li>
-          <MenuItem component={RouterLink} href={editHref} onClick={() => menuActions.onClose()}>
+          <MenuItem
+            component={RouterLink}
+            href={editHref}
+            onClick={() => menuActions.onClose()}
+            disabled={disabled}
+          >
             <Iconify icon="solar:pen-bold" />
-            Edit
+            แก้ไข
           </MenuItem>
         </li>
 
         <MenuItem
+          disabled={disabled}
           onClick={() => {
             confirmDialog.onTrue();
             menuActions.onClose();
@@ -78,7 +94,7 @@ export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
       title="ลบข้อมูล"
-      content="คุณแน่ใจหรือไม่ว่าจะลบ?"
+      content={`คุณแน่ใจหรือไม่ว่าจะลบ ${row.name}?`}
       action={
         <Button variant="contained" color="error" onClick={onDeleteRow}>
           ยืนยันลบข้อมูล
@@ -109,7 +125,7 @@ export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.email}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.role}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{getUserRoleName(row.role)}</TableCell>
 
         <TableCell>
           <Label
@@ -120,7 +136,7 @@ export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow
               'default'
             }
           >
-            {row.status}
+            {getUserStatusName(row.status)}
           </Label>
         </TableCell>
 
@@ -128,6 +144,7 @@ export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Tooltip title="Quick Edit" placement="top" arrow>
               <IconButton
+                disabled={disabled}
                 color={quickEditForm.value ? 'inherit' : 'default'}
                 onClick={quickEditForm.onTrue}
               >
@@ -137,6 +154,7 @@ export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow
 
             <IconButton
               color={menuActions.open ? 'inherit' : 'default'}
+              disabled={disabled}
               onClick={menuActions.onOpen}
             >
               <Iconify icon="eva:more-vertical-fill" />

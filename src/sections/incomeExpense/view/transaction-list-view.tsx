@@ -2,7 +2,7 @@
 
 import type { TableHeadCellProps } from 'src/components/table';
 
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
@@ -17,8 +17,9 @@ import { paths } from 'src/routes/paths';
 
 import { fIsAfter } from 'src/utils/format-time';
 
-import { INVOICE_SERVICE_OPTIONS } from 'src/_mock';
+import { getAccounts } from 'src/services/account';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { getTransactions } from 'src/services/transaction';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -36,7 +37,10 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { useAuthContext } from 'src/auth/hooks';
+
 import { TransactionTableRow } from '../transaction-table-row';
+import { TransactionNewEditForm } from '../transaction-new-edit-form';
 import { TransactionTableToolbar } from '../transaction-table-toolbar';
 import { TransactionTableFiltersResult } from '../transaction-table-filters-result';
 
@@ -46,21 +50,36 @@ const TABLE_HEAD: TableHeadCellProps[] = [
   { id: 'txId', label: 'TXID' },
   { id: 'transactionDate', label: 'เวลาธุรกรรม' },
   { id: 'transactionType', label: 'ประเภท' },
-  { id: 'transactionCategory', label: 'หมวดหมู่' },
-  { id: 'paymentMethod', label: 'วิธีการชำระ', align: 'center' },
-  { id: 'projectId', label: 'โครงการ' },
-  { id: 'accountId', label: 'บัญชี' },
-  { id: 'amount', label: 'จำนวน' },
-  { id: 'createdBy', label: 'ผู้สร้างข้อมูล' },
+  { id: 'amount', label: 'จำนวน', sx: { minWidth: 120 } },
+  { id: 'transactionCategory', label: 'หมวดหมู่', sx: { minWidth: 120 } },
+  { id: 'paymentMethod', label: 'วิธีการชำระ', sx: { minWidth: 100 } },
+  { id: 'projectId', label: 'โครงการ', sx: { minWidth: 100 } },
+  { id: 'accountId', label: 'บัญชี', sx: { minWidth: 150 } },
+  { id: 'createdBy', label: 'ผู้สร้างข้อมูล', sx: { minWidth: 180 } },
   { id: '' },
 ];
 
 // ----------------------------------------------------------------------
 
+interface TransactionListState {
+  projects: Project[];
+  categories: any[];
+  accounts: Account[];
+  users: User[];
+}
+
 export function TransactionListView() {
+  const { company } = useAuthContext();
   const table = useTable({ defaultOrderBy: 'createDate' });
 
   const confirmDialog = useBoolean();
+  const quickEditForm = useBoolean();
+  const masterData = useSetState<TransactionListState>({
+    projects: [],
+    categories: [],
+    accounts: [],
+    users: [],
+  });
 
   const [tableData, setTableData] = useState<Transaction[]>([]);
 
@@ -75,7 +94,7 @@ export function TransactionListView() {
     txStartDate: null,
     txEndDate: null,
   });
-  const { state: currentFilters, setState: updateFilters } = filters;
+  const { state: currentFilters } = filters;
 
   const dateError = fIsAfter(currentFilters.txStartDate, currentFilters.txEndDate);
 
@@ -91,6 +110,22 @@ export function TransactionListView() {
     (!!currentFilters.txStartDate && !!currentFilters.txEndDate);
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
+
+  async function getMasterData() {
+    const accounts = await getAccounts(company?.id);
+    // projects
+    // categories
+    masterData.setState({
+      accounts,
+    });
+  }
+
+  const handleGetTransactions = useCallback(async (params?: Partial<TransactionRequestParam>) => {
+    if (!company) return;
+    const transactions = await getTransactions(company?.id, params);
+    setTableData(transactions);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleDeleteRow = useCallback(
     (id: string) => {
@@ -114,6 +149,16 @@ export function TransactionListView() {
 
     table.onUpdatePageDeleteRows(dataInPage.length, tableData.length);
   }, [dataInPage.length, table, tableData]);
+
+  useEffect(() => {
+    getMasterData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    console.log('Filter transaction!!!');
+    handleGetTransactions(currentFilters);
+  }, [currentFilters, handleGetTransactions]);
 
   // const handleFilterStatus = useCallback(
   //   (event: React.SyntheticEvent, newValue: string) => {
@@ -148,6 +193,16 @@ export function TransactionListView() {
     />
   );
 
+  const renderAddForm = () => (
+    <TransactionNewEditForm
+      open={quickEditForm.value}
+      onClose={quickEditForm.onFalse}
+      accounts={masterData.state.accounts}
+      categories={masterData.state.categories}
+      projects={masterData.state.projects}
+    />
+  );
+
   return (
     <>
       <DashboardContent>
@@ -155,18 +210,17 @@ export function TransactionListView() {
           heading="รายการ รายรับ/รายจ่าย"
           links={[
             { name: 'รายรับ/รายจ่าย', href: paths.management.incomeExpense.transactions },
-            { name: 'List' },
+            { name: 'รายการ' },
           ]}
-          // action={
-          //   <Button
-          //     component={RouterLink}
-          //     href={paths.dashboard.invoice.new}
-          //     variant="contained"
-          //     startIcon={<Iconify icon="mingcute:add-line" />}
-          //   >
-          //     New invoice
-          //   </Button>
-          // }
+          action={
+            <Button
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+              onClick={quickEditForm.onTrue}
+            >
+              เพิ่มรายรับ/รายจ่ายใหม่
+            </Button>
+          }
           sx={{ mb: { xs: 3, md: 5 } }}
         />
 
@@ -204,7 +258,7 @@ export function TransactionListView() {
             filters={filters}
             dateError={dateError}
             onResetPage={table.onResetPage}
-            options={{ services: INVOICE_SERVICE_OPTIONS.map((option) => option.name) }} // TODO:
+            options={masterData.state}
           />
 
           {canReset && (
@@ -212,6 +266,7 @@ export function TransactionListView() {
               filters={filters}
               onResetPage={table.onResetPage}
               totalResults={tableData.length}
+              options={masterData.state}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -316,6 +371,7 @@ export function TransactionListView() {
       </DashboardContent>
 
       {renderConfirmDialog()}
+      {renderAddForm()}
     </>
   );
 }

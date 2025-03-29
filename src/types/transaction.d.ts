@@ -29,3 +29,27 @@ interface FilterTransaction {
   txStartDate?: IDatePickerControl;
   txEndDate?: IDatePickerControl;
 }
+
+interface AddTransactionRequest {
+  companyId: string;
+  accountId: string;
+  amount: number;
+  transactionType: TTransactionType;
+  transactionDate: string;
+  paymentMethod: TPaymentMethod;
+  projectId?: string;
+  description?: string;
+  transactionCategory?: string;
+  evidenceImage?: File | string | undefined;
+}
+
+interface TransactionRequestParam {
+  txId: string;
+  transactionType: TTransactionType;
+  paymentMethod: TPaymentMethod;
+  accountId: string[];
+  projectId: string[];
+  transactionStartDate: string | Date;
+  transactionEndDate: string | Date;
+  transactionCategory: string;
+}

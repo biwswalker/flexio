@@ -13,6 +13,8 @@ import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { getUserRoleName } from 'src/constants/user';
+
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
@@ -58,14 +60,14 @@ export function UserTableToolbar({ filters, options, onResetPage }: Props) {
         alignItems: { xs: 'flex-end', md: 'center' },
       }}
     >
-      <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
+      <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 220 } }}>
         <InputLabel htmlFor="filter-role-select">บทบาท (Role)</InputLabel>
         <Select
           multiple
           value={currentFilters.roles}
           onChange={handleFilterRole}
           input={<OutlinedInput label="บทบาท (Role)" />}
-          renderValue={(selected) => selected.map((value) => value).join(', ')}
+          renderValue={(selected) => selected.map((value) => getUserRoleName(value)).join(', ')}
           inputProps={{ id: 'filter-role-select' }}
           MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
         >
@@ -76,7 +78,7 @@ export function UserTableToolbar({ filters, options, onResetPage }: Props) {
                 size="small"
                 checked={currentFilters.roles?.includes(option as TRole)}
               />
-              {option}
+              {getUserRoleName(option as TRole)}
             </MenuItem>
           ))}
         </Select>

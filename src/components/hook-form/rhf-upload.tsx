@@ -46,16 +46,37 @@ export function RHFUploadAvatar({ name, slotProps, ...other }: RHFUploadProps) {
 
 // ----------------------------------------------------------------------
 
-export function RHFUploadBox({ name, ...other }: RHFUploadProps) {
-  const { control } = useFormContext();
+export function RHFUploadBox({ name, multiple, helperText, ...other }: RHFUploadProps) {
+  const { control, setValue } = useFormContext();
 
   return (
     <Controller
       name={name}
       control={control}
-      render={({ field, fieldState: { error } }) => (
-        <UploadBox value={field.value} error={!!error} {...other} />
-      )}
+      render={({ field, fieldState: { error } }) => {
+        const uploadProps = {
+          multiple,
+          accept: { 'image/*': [] },
+          error: !!error,
+          helperText: error?.message ?? helperText,
+        };
+
+        const onDrop = (acceptedFiles: File[]) => {
+          console.log('on drop...');
+          const value = multiple ? [...field.value, ...acceptedFiles] : acceptedFiles[0];
+
+          setValue(name, value, { shouldValidate: true });
+        };
+        return (
+          <UploadBox
+            {...uploadProps}
+            value={field.value}
+            onDrop={onDrop}
+            error={!!error}
+            {...other}
+          />
+        );
+      }}
     />
   );
 }

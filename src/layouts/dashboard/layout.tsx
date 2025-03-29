@@ -28,6 +28,7 @@ import { MenuButton } from '../components/menu-button';
 import { HeaderSection } from '../core/header-section';
 import { LayoutSection } from '../core/layout-section';
 import { AccountDrawer } from '../components/account-drawer';
+import { SettingsButton } from '../components/settings-button';
 import { WorkspacesPopover } from '../components/workspaces-popover';
 import { dashboardLayoutVars, dashboardNavColorVars } from './css-vars';
 import { navMenuData as dashboardNavData } from '../nav-config-dashboard';
@@ -151,7 +152,7 @@ export function DashboardLayout({
           {/* <ContactsPopover data={_contacts} /> */}
 
           {/** @slot Settings button */}
-          {/* <SettingsButton /> */}
+          <SettingsButton />
 
           {/** @slot Account drawer */}
           <AccountDrawer data={_account} />

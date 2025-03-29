@@ -1,12 +1,18 @@
 'use client';
 
+import { useEffect, useCallback } from 'react';
+import { useSetState } from 'minimal-shared/hooks';
+
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { getDashboardOverview } from 'src/services/dashboard';
 import { _bankingCreditCard, _bankingRecentTransitions } from 'src/_mock';
 
 import { Iconify } from 'src/components/iconify/iconify';
+
+import { useAuthContext } from 'src/auth/hooks';
 
 import { BankingOverview } from '../banking-overview';
 import { BankingCurrentBalance } from '../banking-current-balance';
@@ -17,12 +23,47 @@ import { BankingExpensesCategories } from '../banking-expenses-categories';
 // ----------------------------------------------------------------------
 
 export function OverviewBankingView() {
+  const { company } = useAuthContext();
+
+  const dashboardState = useSetState<DashboardState>({
+    overview: {
+      balance: 0,
+      expense: {
+        percent: 0,
+        total: 0,
+        series: Array(12).fill(0),
+      },
+      income: {
+        percent: 0,
+        total: 0,
+        series: Array(12).fill(0),
+      },
+    },
+  });
+
+  const handleGetDashboardData = useCallback(async () => {
+    try {
+      const overviewData = await getDashboardOverview(company?.id);
+      dashboardState.setField('overview', overviewData);
+    } catch (error) {
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [company]);
+
+  useEffect(() => {
+    if (company) {
+      handleGetDashboardData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [company]);
+
   return (
     <DashboardContent maxWidth="xl">
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 7, lg: 8 }}>
           <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
-            <BankingOverview />
+            <BankingOverview data={dashboardState.state.overview} />
 
             <BankingBalanceStatistics
               title="สรุปรายละเอียดบัญชี"

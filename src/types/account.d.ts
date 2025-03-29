@@ -1,3 +1,5 @@
+type TAccountStatus = 'ACTIVE' | 'INACTIVE';
+
 interface Account {
   id: string;
   companyId: string;
@@ -8,4 +10,5 @@ interface Account {
   balance: number;
   createdAt: string;
   updatedAt: string;
+  status: TAccountStatus;
 }
