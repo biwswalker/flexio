@@ -25,6 +25,12 @@ export const schemaHelper = {
       .refine((data) => props?.isValid?.(data), {
         message: props?.message?.invalid_type ?? 'Invalid phone number!',
       }),
+  phoneNumberNoRequire: (props?: { message?: MessageMapProps }) =>
+    zod
+      .string()
+      .regex(/^0[689]\d{8}$/, {
+        message: props?.message?.invalid_type ?? 'Invalid Thai phone number',
+      }),
   /**
    * Date
    * Apply for date pickers.

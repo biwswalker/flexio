@@ -1,4 +1,5 @@
 import { z as zod } from 'zod';
+import { kebabCase } from 'change-case';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -15,31 +16,37 @@ import { useRouter } from 'src/routes/hooks';
 
 import { fData } from 'src/utils/format-number';
 
+import { createCompany } from 'src/services/company';
+
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
 export type NewCompanySchemaType = zod.infer<typeof NewCompanySchema>;
 
 export const NewCompanySchema = zod.object({
-  imageUrl: schemaHelper.file({ message: 'กรุณาอัพโหดไฟล์' }),
-  name: zod.string().min(1, { message: 'กรุณากรอกชื่อ-นามสกุล' }),
-  shortName: zod.string().min(1, { message: 'กรุณากรอกชื่อสั้น' }),
-  subDistrict: zod.string().min(1, { message: 'ระบุตำบล/แขวง' }),
-  district: zod.string().min(1, { message: 'ระบุอำเภอ/เขต' }),
-  province: zod.string().min(1, { message: 'ระบุจังหวัด' }),
-  postcode: zod.string().min(1, { message: 'ระบุรหัสไปรษณีย์' }),
-  phone: schemaHelper.phoneNumber({
+  imageUrl: zod.custom<File | string | null>(),
+  name: zod.string().min(1, { message: 'กรุณากรอกชื่อบริษัท' }),
+  shortName: zod.string().min(4, { message: 'กรุณากรอกชื่อย่อขั้นต่ำ 4 ตัวอักษร' }),
+  address: zod.string(),
+  subDistrict: zod.string(),
+  district: zod.string(),
+  province: zod.string(),
+  postcode: zod.string(),
+  phone: schemaHelper.phoneNumberNoRequire({
     message: {
-      required: 'กรุณากรอกเบอร์โทรศัพท์',
       invalid_type: 'กรุณากรอกเบอร์โทรศัพท์ที่ถูกต้อง',
     },
   }),
   email: zod
     .string()
-    .min(1, { message: 'กรุณากรอกอีเมล!' })
-    .email({ message: 'กรุณากรอกอีเมลให้ถูกต้อง' }),
+    .optional()
+    .refine((val) => !val || zod.string().email().safeParse(val).success, {
+      message: 'กรุณากรอกอีเมลให้ถูกต้อง',
+    }),
 });
 
 // ----------------------------------------------------------------------
@@ -50,23 +57,19 @@ type Props = {
 
 export function NewCompanyForm({ company }: Props) {
   const router = useRouter();
-
-  // const ROLE_OPTIONS = [
-  //   { value: 'OWNER', label: 'เจ้าของระบบ', disabled: true },
-  //   { value: 'ADMIN', label: 'ผู้จัดการ' },
-  //   { value: 'FINANCIAL', label: 'นักบัญชี' },
-  // ];
+  const { checkUserSession } = useAuthContext();
 
   const defaultValues: NewCompanySchemaType = {
-    imageUrl: '',
-    name: '',
-    shortName: '',
-    subDistrict: '',
-    district: '',
-    province: '',
-    postcode: '',
-    phone: '',
-    email: '',
+    imageUrl: null,
+    name: company?.name || '',
+    shortName: company?.shortName || '',
+    address: company?.address || '',
+    subDistrict: company?.subDistrict || '',
+    district: company?.district || '',
+    province: company?.province || '',
+    postcode: company?.postcode || '',
+    phone: company?.phone || '',
+    email: company?.email || '',
   };
 
   const methods = useForm<NewCompanySchemaType>({
@@ -78,23 +81,36 @@ export function NewCompanyForm({ company }: Props) {
 
   const {
     reset,
-    watch,
-    control,
+    setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
-  const values = watch();
-
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await createCompany({
+        name: data.name,
+        shortName: data.shortName,
+        address: data.address,
+        subDistrict: data.subDistrict,
+        district: data.district,
+        province: data.province,
+        postcode: data.postcode,
+        phone: data.phone,
+        email: data.email,
+        imageUrl: data.imageUrl,
+      });
+      await checkUserSession?.();
       reset();
-      toast.success(company ? 'Update success!' : 'Create success!');
-      router.push(paths.management.companies.detail(company?.id || ''));
-      console.info('DATA', data);
+      router.push(paths.management.companies.detail(data.shortName));
+      toast.success(company ? 'บันทึกข้อมูลบริษัทสำเร็จ!' : 'บันทึกข้อมูลบริษัทสำเร็จ!');
     } catch (error) {
       console.error(error);
+      if (error instanceof Error) {
+        toast.error(error.message || 'ไม่สามารถเพิ่มบริษัทได้');
+        return;
+      }
+      toast.error('ไม่สามารถเพิ่มบริษัทได้');
     }
   });
 
@@ -105,7 +121,7 @@ export function NewCompanyForm({ company }: Props) {
           <Card sx={{ pt: 10, pb: 5, px: 3 }}>
             <Box sx={{ mb: 5 }}>
               <Field.UploadAvatar
-                name="avatarUrl"
+                name="imageUrl"
                 maxSize={3145728}
                 helperText={
                   <Typography
@@ -145,7 +161,25 @@ export function NewCompanyForm({ company }: Props) {
                 gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
               }}
             >
-              <Field.Text name="name" label="บริษัท*" />
+              <Field.Text
+                name="name"
+                label="บริษัท*"
+                onChange={(event) => {
+                  const _value = event.target.value;
+                  setValue('name', _value);
+                  const _shortName = kebabCase(_value.trim());
+                  setValue('shortName', _shortName);
+                }}
+              />
+              <Field.Text
+                name="shortName"
+                label="ชื่อย่อ*"
+                onBlur={(event) => {
+                  const _value = event.target.value;
+                  const _shortnName = _value.trim().replace(/\s+/g, '-').replace(/-+/g, '-');
+                  setValue('shortName', _shortnName);
+                }}
+              />
               <Field.Text name="email" label="อีเมล" />
               <Field.Text name="phone" label="เบอร์ติดต่อ" />
               {/* <Field.Select name="role" label="บทบาท (Role)*">

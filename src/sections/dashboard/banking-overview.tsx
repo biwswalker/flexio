@@ -22,8 +22,11 @@ import { Chart, useChart } from 'src/components/chart';
 import { CustomTabs } from 'src/components/custom-tabs';
 
 // ----------------------------------------------------------------------
+interface Props extends CardProps {
+  data: DashboardOverview;
+}
 
-export function BankingOverview({ sx, ...other }: CardProps) {
+export function BankingOverview({ sx, data, ...other }: Props) {
   const theme = useTheme();
 
   const TABS = useMemo(
@@ -31,19 +34,19 @@ export function BankingOverview({ sx, ...other }: CardProps) {
       {
         value: 'income',
         label: 'รายได้',
-        percent: 8.2,
-        total: 9990,
-        chart: { series: [{ data: [5, 31, 33, 50, 99, 76, 72, 76, 89] }] },
+        percent: data.income.percent,
+        total: data.income.total,
+        chart: { series: [{ data: data.income.series }] },
       },
       {
         value: 'expenses',
         label: 'รายจ่าย',
-        percent: -6.6,
-        total: 1989,
-        chart: { series: [{ data: [10, 41, 35, 51, 49, 62, 69, 91, 148] }] },
+        percent: data.income.percent,
+        total: data.income.total,
+        chart: { series: [{ data: data.expense.series }] },
       },
     ],
-    []
+    [data]
   );
 
   const tabs = useTabs('income');
@@ -51,10 +54,24 @@ export function BankingOverview({ sx, ...other }: CardProps) {
   const chartColors =
     tabs.value === 'income' ? [theme.palette.primary.dark] : [theme.palette.warning.dark];
 
-  // categories: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย', 'ต.ค.', 'พ.ย.', 'ธ.ค.'],
   const chartOptions = useChart({
     colors: chartColors,
-    xaxis: { categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'] },
+    xaxis: {
+      categories: [
+        'ม.ค.',
+        'ก.พ.',
+        'มี.ค.',
+        'เม.ย.',
+        'พ.ค.',
+        'มิ.ย.',
+        'ก.ค.',
+        'ส.ค.',
+        'ก.ย',
+        'ต.ค.',
+        'พ.ย.',
+        'ธ.ค.',
+      ],
+    },
     stroke: { width: 3 },
     tooltip: {
       y: { formatter: (value: number) => fCurrency(value), title: { formatter: () => '' } },
@@ -79,7 +96,7 @@ export function BankingOverview({ sx, ...other }: CardProps) {
         </Tooltip>
       </Box>
 
-      <Box sx={{ typography: 'h3' }}>{fCurrency(49990)} บาท</Box>
+      <Box sx={{ typography: 'h3' }}>{fCurrency(data.balance)} บาท</Box>
     </Box>
   );
 
@@ -171,14 +188,16 @@ export function BankingOverview({ sx, ...other }: CardProps) {
               <Label
                 color={tab.percent < 0 ? 'error' : 'success'}
                 startIcon={
-                  <Iconify
-                    width={24}
-                    icon={
-                      tab.percent < 0
-                        ? 'solar:double-alt-arrow-down-bold-duotone'
-                        : 'solar:double-alt-arrow-up-bold-duotone'
-                    }
-                  />
+                  tab.percent !== 0 && (
+                    <Iconify
+                      width={24}
+                      icon={
+                        tab.percent < 0
+                          ? 'solar:double-alt-arrow-down-bold-duotone'
+                          : 'solar:double-alt-arrow-up-bold-duotone'
+                      }
+                    />
+                  )
                 }
                 sx={{ top: 8, right: 8, position: { md: 'absolute' } }}
               >

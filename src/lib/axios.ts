@@ -58,4 +58,7 @@ export const endpoints = {
     cashFlow: '/api/cash-flow',
     balanceSheet: '/api/balance-sheet',
   },
+  dashboard: {
+    overview: '/api/dashboard/overview',
+  },
 };
