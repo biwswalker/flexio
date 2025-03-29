@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------
 
-export const fallbackLng = 'en';
+export const fallbackLng = 'th';
 export const languages = ['en', 'th'];
 export const defaultNS = 'common';
 export const cookieName = 'i18next';

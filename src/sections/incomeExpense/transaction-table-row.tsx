@@ -1,7 +1,6 @@
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
 
 import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
@@ -10,8 +9,6 @@ import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 
-import { RouterLink } from 'src/routes/components';
-
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fTime } from 'src/utils/format-time';
 
@@ -19,7 +16,7 @@ import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomPopover } from 'src/components/custom-popover';
 
-import { getPaymentMethodText, getTransactionTypeText } from './constants';
+import { getPaymentMethodText, getTransactionTypeText, getTransactionTypeColor } from './constants';
 
 // ----------------------------------------------------------------------
 
@@ -51,23 +48,8 @@ export function TransactionTableRow({
       slotProps={{ arrow: { placement: 'right-top' } }}
     >
       <MenuList>
-        <li>
-          <MenuItem component={RouterLink} href={detailsHref} onClick={menuActions.onClose}>
-            <Iconify icon="solar:eye-bold" />
-            View
-          </MenuItem>
-        </li>
-
-        <li>
-          <MenuItem component={RouterLink} href={editHref} onClick={menuActions.onClose}>
-            <Iconify icon="solar:pen-bold" />
-            Edit
-          </MenuItem>
-        </li>
-
-        <Divider sx={{ borderStyle: 'dashed' }} />
-
         <MenuItem
+          disabled
           onClick={() => {
             confirmDialog.onTrue();
             menuActions.onClose();
@@ -75,7 +57,7 @@ export function TransactionTableRow({
           sx={{ color: 'error.main' }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
+          ลบข้อมูล
         </MenuItem>
       </MenuList>
     </CustomPopover>
@@ -85,11 +67,11 @@ export function TransactionTableRow({
     <ConfirmDialog
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
-      title="Delete"
-      content="Are you sure want to delete?"
+      title="ลบข้อมูล"
+      content="คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?"
       action={
         <Button variant="contained" color="error" onClick={onDeleteRow}>
-          Delete
+          ลบข้อมูล
         </Button>
       }
     />
@@ -132,12 +114,13 @@ export function TransactionTableRow({
                 noWrap: true,
                 sx: {
                   typography: 'body2',
-                  color: row.transactionType ? 'success.main' : 'error.main',
+                  color: getTransactionTypeColor(row.transactionType),
                 },
               },
             }}
           />
         </TableCell>
+        <TableCell>{fCurrency(row.amount)}</TableCell>
 
         <TableCell>{row.transactionCategory}</TableCell>
         <TableCell>{getPaymentMethodText(row.paymentMethod) ?? '-'}</TableCell>
@@ -153,8 +136,7 @@ export function TransactionTableRow({
           />
         </TableCell>
 
-        <TableCell align="center">{fCurrency(row.amount)}</TableCell>
-        <TableCell align="center">{row.createdBy}</TableCell>
+        <TableCell>{row.createdBy}</TableCell>
 
         {/* <TableCell>
           <Label

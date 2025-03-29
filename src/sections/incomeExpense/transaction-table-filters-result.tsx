@@ -1,7 +1,7 @@
 import type { UseSetStateReturn } from 'minimal-shared/hooks';
 import type { FiltersResultProps } from 'src/components/filters-result';
 
-import { useCallback } from 'react';
+import { Fragment, useCallback } from 'react';
 
 import Chip from '@mui/material/Chip';
 
@@ -9,14 +9,28 @@ import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-result';
 
+import { getBankName, PAYMENT_METHOD_OPTIONS } from './constants';
+
 // ----------------------------------------------------------------------
 
 type Props = FiltersResultProps & {
   onResetPage: () => void;
   filters: UseSetStateReturn<FilterTransaction>;
+  options: {
+    projects: Project[];
+    categories: any[];
+    accounts: Account[];
+    users: User[];
+  };
 };
 
-export function TransactionTableFiltersResult({ filters, totalResults, onResetPage, sx }: Props) {
+export function TransactionTableFiltersResult({
+  filters,
+  totalResults,
+  onResetPage,
+  sx,
+  options,
+}: Props) {
   const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
 
   const handleRemoveTxId = useCallback(() => {
@@ -109,39 +123,70 @@ export function TransactionTableFiltersResult({ filters, totalResults, onResetPa
         ))}
       </FiltersBlock>
       <FiltersBlock label="วิธีการชำระ:" isShow={!!currentFilters.paymentMethods?.length}>
-        {currentFilters.paymentMethods?.map((paymentMethod) => (
-          <Chip
-            {...chipProps}
-            key={paymentMethod}
-            label={paymentMethod}
-            onDelete={() => handleRemovePaymentMethod(paymentMethod)}
-          />
-        ))}
+        {currentFilters.paymentMethods?.map((_paymentMethod) => {
+          const paymentMethodData = PAYMENT_METHOD_OPTIONS.find(
+            ({ value }) => value === _paymentMethod
+          );
+          if (!paymentMethodData) {
+            return <Fragment key={_paymentMethod} />;
+          }
+          return (
+            <Chip
+              {...chipProps}
+              key={_paymentMethod}
+              label={paymentMethodData.label}
+              onDelete={() => handleRemovePaymentMethod(paymentMethodData.value)}
+            />
+          );
+        })}
       </FiltersBlock>
       <FiltersBlock label="บัญชี:" isShow={!!currentFilters.accountIds?.length}>
-        {currentFilters.accountIds?.map((accountId) => (
-          <Chip
-            {...chipProps}
-            key={accountId}
-            label={accountId}
-            onDelete={() => handleRemoveAccount(accountId)}
-          />
-        ))}
+        {currentFilters.accountIds?.map((_accountId) => {
+          const accountData = options.accounts.find(({ id }) => id === _accountId);
+          if (!accountData) {
+            return <Fragment key={_accountId} />;
+          }
+          return (
+            <Chip
+              {...chipProps}
+              key={_accountId}
+              label={`${getBankName(accountData.bank, true)}: ${accountData.bankName}`}
+              onDelete={() => handleRemoveAccount(_accountId)}
+            />
+          );
+        })}
       </FiltersBlock>
       <FiltersBlock label="โครงการ:" isShow={!!currentFilters.projectIds?.length}>
-        {currentFilters.projectIds?.map((project) => (
-          <Chip
-            {...chipProps}
-            key={project}
-            label={project}
-            onDelete={() => handleRemoveProject(project)}
-          />
-        ))}
+        {currentFilters.projectIds?.map((_projectId) => {
+          const _projectData = options.projects.find(({ id }) => id === _projectId);
+          if (!_projectData) {
+            return <Fragment key={_projectId} />;
+          }
+          return (
+            <Chip
+              {...chipProps}
+              key={_projectId}
+              label={_projectData.name}
+              onDelete={() => handleRemoveProject(_projectId)}
+            />
+          );
+        })}
       </FiltersBlock>
       <FiltersBlock label="ผู้สร้างข้อมูล:" isShow={!!currentFilters.userIds?.length}>
-        {currentFilters.userIds?.map((user) => (
-          <Chip {...chipProps} key={user} label={user} onDelete={() => handleRemoveUser(user)} />
-        ))}
+        {currentFilters.userIds?.map((_userId) => {
+          const _userData = options.users.find(({ id }) => id === _userId);
+          if (!_userData) {
+            return <Fragment key={_userId} />;
+          }
+          return (
+            <Chip
+              {...chipProps}
+              key={_userId}
+              label={_userData.name}
+              onDelete={() => handleRemoveUser(_userId)}
+            />
+          );
+        })}
       </FiltersBlock>
       <FiltersBlock
         label="ช่วงเวลาธุรกรรม:"

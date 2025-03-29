@@ -20,13 +20,18 @@ import { formHelperTextClasses } from '@mui/material/FormHelperText';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
 
+import { getBankName, PAYMENT_METHOD_OPTIONS } from './constants';
+
 // ----------------------------------------------------------------------
 type Props = {
   dateError: boolean;
   onResetPage: () => void;
   filters: UseSetStateReturn<FilterTransaction>;
   options: {
-    services: string[];
+    projects: Project[];
+    categories: any[];
+    accounts: Account[];
+    users: User[];
   };
 };
 
@@ -181,7 +186,7 @@ export function TransactionTableToolbar({ filters, options, dateError, onResetPa
             inputProps={{ id: 'filter-service-select' }}
             sx={{ textTransform: 'capitalize' }}
           >
-            {options.services.map((option) => (
+            {options.categories.map((option) => (
               <MenuItem key={option} value={option}>
                 <Checkbox
                   disableRipple
@@ -205,21 +210,29 @@ export function TransactionTableToolbar({ filters, options, dateError, onResetPa
             value={currentFilters.paymentMethods}
             onChange={handleFilterPaymentMethod}
             input={<OutlinedInput label="วิธีการชำระ" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            renderValue={(selected = []) =>
+              selected?.reduce((prev, current) => {
+                const account = PAYMENT_METHOD_OPTIONS.find(({ value }) => value === current);
+                return account ? `${prev}${prev ? ', ' : ''}${account.label}` : prev;
+              }, '')
+            }
             inputProps={{ id: 'filter-service-select' }}
             sx={{ textTransform: 'capitalize' }}
           >
-            {options.services.map((option) => (
-              <MenuItem key={option} value={option}>
+            {PAYMENT_METHOD_OPTIONS.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
                 <Checkbox
                   disableRipple
                   size="small"
-                  checked={currentFilters.paymentMethods?.includes(option)}
+                  checked={currentFilters.paymentMethods?.includes(option.value)}
                   slotProps={{
-                    input: { id: `${option}-checkbox`, 'aria-label': `${option} checkbox` },
+                    input: {
+                      id: `${option.value}-checkbox`,
+                      'aria-label': `${option.value} checkbox`,
+                    },
                   }}
                 />
-                {option}
+                {option.label}
               </MenuItem>
             ))}
           </Select>
@@ -232,21 +245,28 @@ export function TransactionTableToolbar({ filters, options, dateError, onResetPa
             value={currentFilters.accountIds}
             onChange={handleFilterAccount}
             input={<OutlinedInput label="บัญชี" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            renderValue={(selected = []) =>
+              selected?.reduce((prev, current) => {
+                const account = options.accounts.find(({ id }) => id === current);
+                return account
+                  ? `${prev}${prev ? ', ' : ''}${getBankName(account.bank, true)}: ${account.bankName}`
+                  : prev;
+              }, '')
+            }
             inputProps={{ id: 'filter-service-select' }}
             sx={{ textTransform: 'capitalize' }}
           >
-            {options.services.map((option) => (
-              <MenuItem key={option} value={option}>
+            {options.accounts.map((option) => (
+              <MenuItem key={option.id} value={option.id}>
                 <Checkbox
                   disableRipple
                   size="small"
-                  checked={currentFilters.accountIds?.includes(option)}
+                  checked={currentFilters.accountIds?.includes(option.id)}
                   slotProps={{
-                    input: { id: `${option}-checkbox`, 'aria-label': `${option} checkbox` },
+                    input: { id: `${option.id}-checkbox`, 'aria-label': `${option.bank} checkbox` },
                   }}
                 />
-                {option}
+                {getBankName(option.bank, true)}: {option.bankName}
               </MenuItem>
             ))}
           </Select>
@@ -275,17 +295,17 @@ export function TransactionTableToolbar({ filters, options, dateError, onResetPa
             inputProps={{ id: 'filter-service-select' }}
             sx={{ textTransform: 'capitalize' }}
           >
-            {options.services.map((option) => (
-              <MenuItem key={option} value={option}>
+            {options.projects.map((option) => (
+              <MenuItem key={option.id} value={option.id}>
                 <Checkbox
                   disableRipple
                   size="small"
-                  checked={currentFilters.projectIds?.includes(option)}
+                  checked={currentFilters.projectIds?.includes(option.id)}
                   slotProps={{
-                    input: { id: `${option}-checkbox`, 'aria-label': `${option} checkbox` },
+                    input: { id: `${option.id}-checkbox`, 'aria-label': `${option.id} checkbox` },
                   }}
                 />
-                {option}
+                {option.name}
               </MenuItem>
             ))}
           </Select>
@@ -303,17 +323,17 @@ export function TransactionTableToolbar({ filters, options, dateError, onResetPa
             inputProps={{ id: 'filter-service-select' }}
             sx={{ textTransform: 'capitalize' }}
           >
-            {options.services.map((option) => (
-              <MenuItem key={option} value={option}>
+            {options.users.map((option) => (
+              <MenuItem key={option.id} value={option.id}>
                 <Checkbox
                   disableRipple
                   size="small"
-                  checked={currentFilters.userIds?.includes(option)}
+                  checked={currentFilters.userIds?.includes(option.id)}
                   slotProps={{
-                    input: { id: `${option}-checkbox`, 'aria-label': `${option} checkbox` },
+                    input: { id: `${option.id}-checkbox`, 'aria-label': `${option.id} checkbox` },
                   }}
                 />
-                {option}
+                {option.name}
               </MenuItem>
             ))}
           </Select>

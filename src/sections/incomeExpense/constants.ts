@@ -13,4 +13,38 @@ export const getPaymentMethodText = (paymentMethod: TPaymentMethod) =>
 
 export const getTransactionTypeText = (txType: TTransactionType) => transactionTypes[txType] || '';
 export const getTransactionTypeColor = (txType: TTransactionType) =>
-  txType === 'INCOME' ? '' : 'error';
+  txType === 'INCOME' ? 'success.main' : 'error.main';
+
+export const getBankName = (value: string, onlyName = false) => {
+  const _bank = BANK_PROVIDER.find((bank) => bank.value === value);
+  if (onlyName && _bank) {
+    return _bank.label.replace('ธนาคาร', '')?.trim();
+  }
+  return _bank?.label || '';
+};
+
+export const TRANSACTION_TYPE_OPTIONS = [
+  { label: 'รายรับ', value: 'INCOME' },
+  { label: 'รายจ่าย', value: 'EXPENSE' },
+];
+
+export const PAYMENT_METHOD_OPTIONS = [
+  { label: 'เงินสด', value: 'CASH' },
+  { label: 'โอน', value: 'TRANSFER' },
+];
+
+export const BANK_PROVIDER = [
+  { value: 'BBL', label: 'ธนาคารกรุงเทพ' },
+  { value: 'KBANK', label: 'ธนาคารกสิกรไทย' },
+  { value: 'KTB', label: 'ธนาคารกรุงไทย' },
+  { value: 'SCB', label: 'ธนาคารไทยพาณิชย์' },
+  { value: 'BAY', label: 'ธนาคารกรุงศรีอยุธยา' },
+  { value: 'TTB', label: 'ธนาคารทหารไทยธนชาต' },
+  { value: 'KK', label: 'ธนาคารเกียรตินาคิน' },
+  { value: 'TISCO', label: 'ธนาคารทิสโก้' },
+  { value: 'CIMBT', label: 'ธนาคารซีไอเอ็มบีไทย' },
+  { value: 'UOB', label: 'ธนาคารยูโอบี' },
+  { value: 'GSB', label: 'ธนาคารออมสิน' },
+  { value: 'GHB', label: 'ธนาคารอาคารสงเคราะห์' },
+  { value: 'BACC', label: 'ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร' },
+];
