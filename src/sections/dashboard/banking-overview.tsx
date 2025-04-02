@@ -41,8 +41,8 @@ export function BankingOverview({ sx, data, ...other }: Props) {
       {
         value: 'expenses',
         label: 'รายจ่าย',
-        percent: data.income.percent,
-        total: data.income.total,
+        percent: data.expense.percent,
+        total: data.expense.total,
         chart: { series: [{ data: data.expense.series }] },
       },
     ],

@@ -61,5 +61,6 @@ export const endpoints = {
   },
   dashboard: {
     overview: '/api/dashboard/overview',
+    detail: '/api/dashboard/detail',
   },
 };

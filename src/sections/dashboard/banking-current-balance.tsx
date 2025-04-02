@@ -6,12 +6,15 @@ import { useBoolean, usePopover } from 'minimal-shared/hooks';
 import Box from '@mui/material/Box';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
+import { Stack, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
 import { fCurrency } from 'src/utils/format-number';
 
 import { CONFIG } from 'src/global-config';
+import { bankLists } from 'src/constants/bank';
 
+import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
 import { Carousel, useCarousel, CarouselDotButtons } from 'src/components/carousel';
@@ -92,6 +95,7 @@ type CarouselItemProps = {
 
 function CarouselItem({ item, showCurrency, onToggleCurrency }: CarouselItemProps) {
   const menuActions = usePopover();
+  const _bank: Bank = bankLists[item.bank];
 
   const handleEdit = useCallback(() => {
     menuActions.onClose();
@@ -112,6 +116,8 @@ function CarouselItem({ item, showCurrency, onToggleCurrency }: CarouselItemProp
       </MenuList>
     </CustomPopover>
   );
+
+  if (!_bank) return null;
 
   return (
     <>
@@ -150,33 +156,29 @@ function CarouselItem({ item, showCurrency, onToggleCurrency }: CarouselItemProp
             my: 3,
             gap: 1,
             display: 'flex',
-            alignItems: 'center',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
             typography: 'subtitle1',
             justifyContent: 'flex-end',
+            letterSpacing: 5.5,
           }}
         >
-          <Box
-            sx={{
-              px: 0.75,
-              bgcolor: 'white',
-              borderRadius: 0.5,
-              display: 'inline-flex',
-            }}
-          >
-            {/* {item.cardType === 'mastercard' && <Iconify width={24} icon="logos:mastercard" />}
-            {item.cardType === 'visa' && <Iconify width={24} icon="logos:visa" />} */}
-            <Iconify width={24} icon="logos:visa" />
-          </Box>
-
           {item.bankNumber}
+          <Typography variant="caption" sx={{ letterSpacing: 1, pr: 0.5 }}>
+            {item.bankName}
+          </Typography>
         </Box>
 
-        <Box sx={{ gap: 5, display: 'flex', typography: 'subtitle1' }}>
-          <div>
-            <Box sx={{ mb: 1, opacity: 0.48, typography: 'caption' }}>ธนาคาร</Box>
-
-            <Box component="span">{item.bank}</Box>
-          </div>
+        <Box sx={{ gap: 1, display: 'flex', typography: 'subtitle1' }}>
+          <Box sx={{ width: 44, height: 44 }}>
+            <Image alt={_bank.name} src={_bank.icon} sx={{ height: 1, borderRadius: 1.5 }} />
+          </Box>
+          <Stack>
+            <Box sx={{ opacity: 0.48, typography: 'caption' }}>ธนาคาร</Box>
+            <Box component="span" sx={{ color: _bank.color }}>
+              {_bank.name}
+            </Box>
+          </Stack>
           {/* <div>
             <Box sx={{ mb: 1, opacity: 0.48, typography: 'caption' }}>Expiration date</Box>
 

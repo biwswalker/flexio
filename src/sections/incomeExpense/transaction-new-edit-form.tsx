@@ -69,12 +69,19 @@ export const NewTransactionSchema = zod.object({
 type Props = {
   open: boolean;
   onClose: () => void;
+  onComplete: () => void;
   transaction?: Transaction;
   projects: Project[];
   accounts: Account[];
 };
 
-export function TransactionNewEditForm({ transaction, open, onClose, accounts = [] }: Props) {
+export function TransactionNewEditForm({
+  transaction,
+  open,
+  onClose,
+  onComplete,
+  accounts = [],
+}: Props) {
   const router = useRouter();
   const { company } = useAuthContext();
   const [categoryList, setCategoryList] = useState<TransactionCategory[]>([]);
@@ -167,7 +174,7 @@ export function TransactionNewEditForm({ transaction, open, onClose, accounts = 
           evidenceImage: data.evidenceImageUrl ?? undefined,
         });
         reset();
-        onClose();
+        onComplete();
         toast.success('บันทึกรายรับ/รายจ่ายสำเร็จ!');
       } else {
         toast.error('ไม่พบข้อมูลบริษัท');

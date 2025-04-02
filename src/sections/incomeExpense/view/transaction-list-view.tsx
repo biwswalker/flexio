@@ -170,6 +170,11 @@ export function TransactionListView() {
   //   [updateFilters, table]
   // );
 
+  function handleOnAddIncomeExpenseComplete() {
+    handleGetTransactions(currentFilters);
+    quickEditForm.onFalse();
+  }
+
   const renderConfirmDialog = () => (
     <ConfirmDialog
       open={confirmDialog.value}
@@ -199,6 +204,7 @@ export function TransactionListView() {
     <TransactionNewEditForm
       open={quickEditForm.value}
       onClose={quickEditForm.onFalse}
+      onComplete={handleOnAddIncomeExpenseComplete}
       accounts={masterData.state.accounts}
       projects={masterData.state.projects}
     />
