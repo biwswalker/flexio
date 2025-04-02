@@ -18,7 +18,7 @@ type Props = FiltersResultProps & {
   filters: UseSetStateReturn<FilterTransaction>;
   options: {
     projects: Project[];
-    categories: any[];
+    categories: TransactionCategory[];
     accounts: Account[];
     users: User[];
   };
@@ -113,14 +113,20 @@ export function TransactionTableFiltersResult({
         <Chip {...chipProps} label={currentFilters.txId} onDelete={handleRemoveTxId} />
       </FiltersBlock>
       <FiltersBlock label="หมวดหมู่:" isShow={!!currentFilters.categories?.length}>
-        {currentFilters.categories?.map((category) => (
-          <Chip
-            {...chipProps}
-            key={category}
-            label={category}
-            onDelete={() => handleRemoveCategory(category)}
-          />
-        ))}
+        {currentFilters.categories?.map((_category) => {
+          const categoryData = options.categories.find(({ id }) => id === _category);
+          if (!categoryData) {
+            return <Fragment key={_category} />;
+          }
+          return (
+            <Chip
+              {...chipProps}
+              key={_category}
+              label={categoryData.name}
+              onDelete={() => handleRemoveCategory(_category)}
+            />
+          );
+        })}
       </FiltersBlock>
       <FiltersBlock label="วิธีการชำระ:" isShow={!!currentFilters.paymentMethods?.length}>
         {currentFilters.paymentMethods?.map((_paymentMethod) => {

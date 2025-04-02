@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useMemo, useCallback } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -24,6 +24,7 @@ import { useRouter } from 'src/routes/hooks';
 
 import { MAX_FILE_UPLOAD } from 'src/constants/file';
 import { addTransaction } from 'src/services/transaction';
+import { getTransactionCategory } from 'src/services/transactionCategory';
 import {
   getBankName,
   PAYMENT_METHOD_OPTIONS,
@@ -47,9 +48,9 @@ export const NewTransactionSchema = zod.object({
   transactionDate: schemaHelper.date({
     message: { required: 'ระบุวันที่ทำรายการ', invalid_type: 'วันที่ไม่ถูกต้อง' },
   }),
-  projectId: zod.string(),
+  projectId: zod.string().nullable(),
   paymentMethod: zod.string().min(1, { message: 'ระบุวิธีการชำระ' }),
-  transactionCategory: zod.string(),
+  transactionCategory: zod.string().nullable(),
   accountId: zod.string({ message: 'ระบุบัญชี' }).min(1, { message: 'ระบุบัญชี' }),
   amount: schemaHelper.nullableInput(
     zod.number({ coerce: true }).min(1, { message: 'ระบุยอดเงิน' }),
@@ -70,13 +71,13 @@ type Props = {
   onClose: () => void;
   transaction?: Transaction;
   projects: Project[];
-  categories: any[];
   accounts: Account[];
 };
 
 export function TransactionNewEditForm({ transaction, open, onClose, accounts = [] }: Props) {
   const router = useRouter();
   const { company } = useAuthContext();
+  const [categoryList, setCategoryList] = useState<TransactionCategory[]>([]);
 
   const defaultValues: NewTransactionSchemaType = {
     company: company?.name || '',
@@ -129,6 +130,27 @@ export function TransactionNewEditForm({ transaction, open, onClose, accounts = 
     console.log('handleOnUploadFile: ');
   }, []);
 
+  const handleGetTransactionCategory = useCallback(
+    async (params?: Partial<GetTransactionCategoryParam>) => {
+      setValue('transactionCategory', '');
+      const _categories = await getTransactionCategory(params);
+      setCategoryList(_categories);
+    },
+    [setValue]
+  );
+
+  const hanadleOnChangeTransactionType = useCallback(
+    async (_: React.ChangeEvent<HTMLInputElement>, value: string) => {
+      setValue('transactionType', value);
+      handleGetTransactionCategory({ type: value as TTransactionType, status: 'ACTIVE' });
+    },
+    [handleGetTransactionCategory, setValue]
+  );
+
+  useEffect(() => {
+    handleGetTransactionCategory({ status: 'ACTIVE', type: 'INCOME' });
+  }, [handleGetTransactionCategory]);
+
   const onSubmit = handleSubmit(async (data) => {
     try {
       if (company) {
@@ -139,9 +161,9 @@ export function TransactionNewEditForm({ transaction, open, onClose, accounts = 
           transactionType: data.transactionType as TTransactionType,
           transactionDate: data.transactionDate ? dayjs(data.transactionDate).toISOString() : '',
           paymentMethod: data.paymentMethod as TPaymentMethod,
-          projectId: data.projectId,
+          projectId: data.projectId || '',
           description: data.description,
-          transactionCategory: data.transactionCategory,
+          transactionCategory: data.transactionCategory || '',
           evidenceImage: data.evidenceImageUrl ?? undefined,
         });
         reset();
@@ -185,6 +207,7 @@ export function TransactionNewEditForm({ transaction, open, onClose, accounts = 
               row
               name="transactionType"
               options={TRANSACTION_TYPE_OPTIONS}
+              onChange={hanadleOnChangeTransactionType}
               sx={{ gap: 4 }}
             />
 
@@ -252,19 +275,32 @@ export function TransactionNewEditForm({ transaction, open, onClose, accounts = 
                   </MenuItem>
                 ))}
               </Field.Select>
-              <Field.Autocomplete
-                name="projectId"
+
+              <Field.Select name="transactionCategory" label="หมวดหมู่">
+                <MenuItem value="" disabled>
+                  ระบุบัญชี
+                </MenuItem>
+                <Divider sx={{ borderStyle: 'dashed' }} />
+                {categoryList.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </Field.Select>
+
+              {/* <Field.Autocomplete
+                name="transactionCategory"
                 label="หมวดหมู่"
                 autoHighlight
                 noOptionsText="ไม่พบหมวดหมู่"
-                options={[].map((option) => option)}
+                options={categoryList.map((option) => option)}
                 getOptionLabel={(option) => option}
                 renderOption={(props, option) => (
                   <li {...props} key={option}>
                     {option}
                   </li>
                 )}
-              />
+              /> */}
             </Box>
 
             {/* Line 5 */}
@@ -308,7 +344,7 @@ export function TransactionNewEditForm({ transaction, open, onClose, accounts = 
             </Box>
 
             {/* Line 6 */}
-            <Field.Text name="transactionCategory" label="หมายเหตุ" multiline rows={3} />
+            <Field.Text name="description" label="หมายเหตุ" multiline rows={3} />
 
             {/* Line 7 */}
             <Box

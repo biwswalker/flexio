@@ -44,10 +44,10 @@ export const addTransaction = async (request: AddTransactionRequest): Promise<bo
 export const getTransactions = async (
   companyId: string,
   params?: Partial<TransactionRequestParam>
-): Promise<Transaction[]> => {
+): Promise<GetTransactionResponse[]> => {
   try {
     const _params = omitBy(params ?? {}, isEmpty);
-    const response = await axios.get<APIResponse<Transaction[]>>(
+    const response = await axios.get<APIResponse<GetTransactionResponse[]>>(
       `${endpoints.incomeExpense}/${companyId}`,
       { params: _params }
     );

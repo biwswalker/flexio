@@ -20,6 +20,7 @@ import { fIsAfter } from 'src/utils/format-time';
 import { getAccounts } from 'src/services/account';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { getTransactions } from 'src/services/transaction';
+import { getTransactionCategory } from 'src/services/transactionCategory';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -81,7 +82,7 @@ export function TransactionListView() {
     users: [],
   });
 
-  const [tableData, setTableData] = useState<Transaction[]>([]);
+  const [tableData, setTableData] = useState<GetTransactionResponse[]>([]);
 
   const filters = useSetState<FilterTransaction>({
     txId: '',
@@ -112,11 +113,12 @@ export function TransactionListView() {
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
   async function getMasterData() {
+    const categories = await getTransactionCategory({ status: 'ACTIVE' });
     const accounts = await getAccounts(company?.id);
     // projects
-    // categories
     masterData.setState({
       accounts,
+      categories,
     });
   }
 
@@ -198,7 +200,6 @@ export function TransactionListView() {
       open={quickEditForm.value}
       onClose={quickEditForm.onFalse}
       accounts={masterData.state.accounts}
-      categories={masterData.state.categories}
       projects={masterData.state.projects}
     />
   );

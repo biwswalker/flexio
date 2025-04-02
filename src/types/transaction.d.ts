@@ -18,6 +18,14 @@ interface Transaction {
   createdBy: string;
 }
 
+interface GetTransactionResponse extends Transaction {
+  transactionCategoryName: string;
+  projectName: string;
+  accountBank: string;
+  accountBankName: string;
+  createUserName: string;
+}
+
 interface FilterTransaction {
   txId?: string;
   categories?: string[];
