@@ -1,7 +1,6 @@
 import type { CardProps } from '@mui/material/Card';
 
 import { useMemo } from 'react';
-import NextLink from 'next/link';
 import { useTabs } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
@@ -10,8 +9,6 @@ import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import { useTheme } from '@mui/material/styles';
-
-import { paths } from 'src/routes/paths';
 
 import { today } from 'src/utils/format-time';
 import { fPercent, fCurrency } from 'src/utils/format-number';
@@ -24,9 +21,10 @@ import { CustomTabs } from 'src/components/custom-tabs';
 // ----------------------------------------------------------------------
 interface Props extends CardProps {
   data: DashboardOverview;
+  onPressAction?: () => void;
 }
 
-export function BankingOverview({ sx, data, ...other }: Props) {
+export function BankingOverview({ sx, data, onPressAction = () => {}, ...other }: Props) {
   const theme = useTheme();
 
   const TABS = useMemo(
@@ -106,8 +104,7 @@ export function BankingOverview({ sx, data, ...other }: Props) {
         variant="soft"
         size="small"
         startIcon={<Iconify width={16} icon="mingcute:add-line" />}
-        component={NextLink}
-        href={paths.management.accounts.new}
+        onClick={onPressAction}
       >
         เพิ่มบัญชีธนาคาร
       </Button>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
-import { useSetState } from 'minimal-shared/hooks';
+import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
@@ -9,6 +9,8 @@ import Grid from '@mui/material/Grid2';
 import { getAccounts } from 'src/services/account';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { getDashboardDetail, getDashboardOverview } from 'src/services/dashboard';
+
+import { BankNewEditForm } from 'src/sections/bank/bank-new-edit-form';
 
 import { useAuthContext } from 'src/auth/hooks';
 
@@ -19,6 +21,7 @@ import { BankingBalanceStatistics } from '../banking-balance-statistics';
 // ----------------------------------------------------------------------
 
 export function OverviewBankingView() {
+  const addBankAccountForm = useBoolean();
   const { company } = useAuthContext();
 
   const dashboardState = useSetState<DashboardState>({
@@ -74,21 +77,39 @@ export function OverviewBankingView() {
     [company, dashboardState]
   );
 
+  const handleOnAddBankAccountComplete = useCallback(async () => {
+    const accountData = await getAccounts(company?.id);
+    dashboardState.setField('accounts', accountData);
+    addBankAccountForm.onFalse();
+  }, [addBankAccountForm, company?.id, dashboardState]);
+
+  const renderAddBankForm = () => (
+    <BankNewEditForm
+      open={addBankAccountForm.value}
+      onClose={addBankAccountForm.onFalse}
+      onComplete={handleOnAddBankAccountComplete}
+    />
+  );
+
   return (
-    <DashboardContent maxWidth="xl">
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 7, lg: 8 }}>
-          <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
-            <BankingOverview data={dashboardState.state.overview} />
+    <>
+      <DashboardContent maxWidth="xl">
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, md: 7, lg: 8 }}>
+            <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
+              <BankingOverview
+                data={dashboardState.state.overview}
+                onPressAction={() => addBankAccountForm.onTrue()}
+              />
 
-            <BankingBalanceStatistics
-              title="สรุปรายละเอียดบัญชี"
-              subheader="รายละเอียดบัญชีตามช่วงเวลา"
-              data={dashboardState.state.detail}
-              onChangePeriod={handleChangeDetailPeriod}
-            />
+              <BankingBalanceStatistics
+                title="สรุปรายละเอียดบัญชี"
+                subheader="รายละเอียดบัญชีตามช่วงเวลา"
+                data={dashboardState.state.detail}
+                onChangePeriod={handleChangeDetailPeriod}
+              />
 
-            {/* <BankingExpensesCategories
+              {/* <BankingExpensesCategories
               title="หมวดหมู่ค่าใช้จ่าย"
               chart={{
                 series: [
@@ -114,7 +135,7 @@ export function OverviewBankingView() {
               }}
             /> */}
 
-            {/* <BankingRecentTransitions
+              {/* <BankingRecentTransitions
               title="รายการเงินล่าสุด"
               tableData={_bankingRecentTransitions}
               headCells={[
@@ -125,15 +146,17 @@ export function OverviewBankingView() {
                 { id: '' },
               ]}
             /> */}
-          </Box>
-        </Grid>
+            </Box>
+          </Grid>
 
-        <Grid size={{ xs: 12, md: 5, lg: 4 }}>
-          <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
-            <BankingCurrentBalance list={dashboardState.state.accounts} />
-          </Box>
+          <Grid size={{ xs: 12, md: 5, lg: 4 }}>
+            <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
+              <BankingCurrentBalance list={dashboardState.state.accounts} />
+            </Box>
+          </Grid>
         </Grid>
-      </Grid>
-    </DashboardContent>
+      </DashboardContent>
+      {renderAddBankForm()}
+    </>
   );
 }
