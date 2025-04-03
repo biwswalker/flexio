@@ -122,12 +122,14 @@ export function TransactionListView() {
     });
   }
 
-  const handleGetTransactions = useCallback(async (params?: Partial<TransactionRequestParam>) => {
-    if (!company) return;
-    const transactions = await getTransactions(company?.id, params);
-    setTableData(transactions);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const handleGetTransactions = useCallback(
+    async (params?: Partial<TransactionRequestParam>) => {
+      if (!company) return;
+      const transactions = await getTransactions(company?.id, params);
+      setTableData(transactions);
+    },
+    [company]
+  );
 
   const handleDeleteRow = useCallback(
     (id: string) => {
