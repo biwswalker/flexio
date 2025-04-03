@@ -13,6 +13,7 @@ import { fCurrency } from 'src/utils/format-number';
 import { fDate, fTime } from 'src/utils/format-time';
 
 import {
+  getBankName,
   getPaymentMethodText,
   getTransactionTypeText,
   getTransactionTypeColor,
@@ -25,7 +26,7 @@ import { CustomPopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 type Props = {
-  row: Transaction;
+  row: GetTransactionResponse;
   selected: boolean;
   editHref: string;
   detailsHref: string;
@@ -126,13 +127,13 @@ export function TransactionTableRow({
         </TableCell>
         <TableCell>{fCurrency(row.amount)}</TableCell>
 
-        <TableCell>{row.transactionCategory}</TableCell>
+        <TableCell>{row.transactionCategoryName}</TableCell>
         <TableCell>{getPaymentMethodText(row.paymentMethod) ?? '-'}</TableCell>
-        <TableCell>{row.projectId}</TableCell>
+        <TableCell>{row.projectName}</TableCell>
         <TableCell>
           <ListItemText
-            primary={row.accountId ?? '-'}
-            secondary={row.accountId ?? '-'}
+            primary={getBankName(row.accountBank, true) ?? '-'}
+            secondary={row.accountBankName ?? '-'}
             slotProps={{
               primary: { noWrap: true, sx: { typography: 'body2' } },
               secondary: { sx: { mt: 0.5, typography: 'caption' } },
@@ -140,7 +141,7 @@ export function TransactionTableRow({
           />
         </TableCell>
 
-        <TableCell>{row.createdBy}</TableCell>
+        <TableCell>{row.createUserName}</TableCell>
 
         {/* <TableCell>
           <Label

@@ -53,6 +53,7 @@ export const endpoints = {
   quotation: '/api/quotation',
   receipt: '/api/receipt',
   commission: '/api/commission',
+  transactionCategory: '/api/trx-category',
   profitLoss: {
     root: '/api/profit-loss',
     cashFlow: '/api/cash-flow',
@@ -60,5 +61,6 @@ export const endpoints = {
   },
   dashboard: {
     overview: '/api/dashboard/overview',
+    detail: '/api/dashboard/detail',
   },
 };

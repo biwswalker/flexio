@@ -1,29 +1,33 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
-import { useSetState } from 'minimal-shared/hooks';
+import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 
+import { getAccounts } from 'src/services/account';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { getDashboardOverview } from 'src/services/dashboard';
-import { _bankingCreditCard, _bankingRecentTransitions } from 'src/_mock';
+import { MotivationIllustration } from 'src/assets/illustrations';
+import { getDashboardDetail, getDashboardOverview } from 'src/services/dashboard';
 
-import { Iconify } from 'src/components/iconify/iconify';
+import { LoadingScreen } from 'src/components/loading-screen';
+
+import { BankNewEditForm } from 'src/sections/bank/bank-new-edit-form';
 
 import { useAuthContext } from 'src/auth/hooks';
 
+import { AppWelcome } from '../app-welcome';
 import { BankingOverview } from '../banking-overview';
 import { BankingCurrentBalance } from '../banking-current-balance';
 import { BankingBalanceStatistics } from '../banking-balance-statistics';
-import { BankingRecentTransitions } from '../banking-recent-transitions';
-import { BankingExpensesCategories } from '../banking-expenses-categories';
 
 // ----------------------------------------------------------------------
 
 export function OverviewBankingView() {
-  const { company } = useAuthContext();
+  const addBankAccountForm = useBoolean();
+  const loading = useBoolean();
+  const { company, user } = useAuthContext();
 
   const dashboardState = useSetState<DashboardState>({
     overview: {
@@ -39,17 +43,32 @@ export function OverviewBankingView() {
         series: Array(12).fill(0),
       },
     },
+    detail: {
+      period: 'WEEKLY',
+      labels: [],
+      data: [],
+    },
+    accounts: [],
   });
 
   const handleGetDashboardData = useCallback(async () => {
     try {
+      loading.onTrue();
       const overviewData = await getDashboardOverview(company?.id);
-      dashboardState.setField('overview', overviewData);
+      const detailData = await getDashboardDetail('WEEKLY', company?.id);
+      const accountData = await getAccounts(company?.id);
+      dashboardState.setState({
+        overview: overviewData,
+        detail: detailData,
+        accounts: accountData,
+      });
     } catch (error) {
       console.error(error);
+    } finally {
+      loading.onFalse();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [company]);
+  }, [company?.id, dashboardState]);
 
   useEffect(() => {
     if (company) {
@@ -58,50 +77,68 @@ export function OverviewBankingView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [company]);
 
-  return (
-    <DashboardContent maxWidth="xl">
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 7, lg: 8 }}>
-          <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
-            <BankingOverview data={dashboardState.state.overview} />
+  const handleChangeDetailPeriod = useCallback(
+    async (_period: TDashboardPeriod) => {
+      const detailData = await getDashboardDetail(_period, company?.id);
+      dashboardState.setField('detail', detailData);
+    },
+    [company, dashboardState]
+  );
 
-            <BankingBalanceStatistics
-              title="สรุปรายละเอียดบัญชี"
-              subheader="รายละเอียดบัญชีตามช่วงเวลา"
-              chart={{
-                series: [
-                  {
-                    name: 'รายสัปดาห์',
-                    categories: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
-                    data: [
-                      { name: 'รายได้', data: [24, 41, 35, 151, 49] },
-                      { name: 'รายจ่าย', data: [24, 56, 77, 88, 99] },
-                      { name: 'อื่นๆ', data: [40, 34, 77, 88, 99] },
-                    ],
-                  },
-                  {
-                    name: 'รายเดือน',
-                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                    data: [
-                      { name: 'รายได้', data: [83, 112, 119, 88, 103, 112, 114, 108, 93] },
-                      { name: 'รายจ่าย', data: [46, 46, 43, 58, 40, 59, 54, 42, 51] },
-                      { name: 'อื่นๆ', data: [25, 40, 38, 35, 20, 32, 27, 40, 21] },
-                    ],
-                  },
-                  {
-                    name: 'รายปี',
-                    categories: ['2018', '2019', '2020', '2021', '2022', '2023'],
-                    data: [
-                      { name: 'รายได้', data: [76, 42, 29, 41, 27, 96] },
-                      { name: 'รายจ่าย', data: [46, 44, 24, 43, 44, 43] },
-                      { name: 'อื่นๆ', data: [23, 22, 37, 38, 32, 25] },
-                    ],
-                  },
-                ],
-              }}
+  const handleOnAddBankAccountComplete = useCallback(async () => {
+    const accountData = await getAccounts(company?.id);
+    dashboardState.setField('accounts', accountData);
+    addBankAccountForm.onFalse();
+  }, [addBankAccountForm, company?.id, dashboardState]);
+
+  if (!company || loading.value || !user) {
+    return <LoadingScreen />;
+  }
+
+  const renderAddBankForm = () => (
+    <BankNewEditForm
+      company={company}
+      open={addBankAccountForm.value}
+      onClose={addBankAccountForm.onFalse}
+      onComplete={handleOnAddBankAccountComplete}
+    />
+  );
+
+  if (user.role === 'FINANCIAL') {
+    return (
+      <DashboardContent maxWidth="xl">
+        <Grid container spacing={3}>
+          <Grid>
+            <AppWelcome
+              title={`สวัสดี 👋 \n ${user?.name}`}
+              description="ที่นี่คุณสามารถติดตามข้อมูลรายการการเงิน ตรวจสอบประวัติรายรับรายจ่าย ทุกอย่างที่คุณต้องการอยู่แค่ปลายนิ้ว."
+              img={<MotivationIllustration hideBackground />}
             />
+          </Grid>
+        </Grid>
+      </DashboardContent>
+    );
+  }
 
-            <BankingExpensesCategories
+  return (
+    <>
+      <DashboardContent maxWidth="xl">
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, md: 7, lg: 8 }}>
+            <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
+              <BankingOverview
+                data={dashboardState.state.overview}
+                onPressAction={addBankAccountForm.onTrue}
+              />
+
+              <BankingBalanceStatistics
+                title="สรุปรายละเอียดบัญชี"
+                subheader="รายละเอียดบัญชีตามช่วงเวลา"
+                data={dashboardState.state.detail}
+                onChangePeriod={handleChangeDetailPeriod}
+              />
+
+              {/* <BankingExpensesCategories
               title="หมวดหมู่ค่าใช้จ่าย"
               chart={{
                 series: [
@@ -125,9 +162,9 @@ export function OverviewBankingView() {
                   <Iconify icon="solar:cart-3-bold" />,
                 ],
               }}
-            />
+            /> */}
 
-            <BankingRecentTransitions
+              {/* <BankingRecentTransitions
               title="รายการเงินล่าสุด"
               tableData={_bankingRecentTransitions}
               headCells={[
@@ -137,16 +174,18 @@ export function OverviewBankingView() {
                 { id: 'status', label: 'สถานะ' },
                 { id: '' },
               ]}
-            />
-          </Box>
-        </Grid>
+            /> */}
+            </Box>
+          </Grid>
 
-        <Grid size={{ xs: 12, md: 5, lg: 4 }}>
-          <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
-            <BankingCurrentBalance list={_bankingCreditCard} />
-          </Box>
+          <Grid size={{ xs: 12, md: 5, lg: 4 }}>
+            <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
+              <BankingCurrentBalance list={dashboardState.state.accounts} />
+            </Box>
+          </Grid>
         </Grid>
-      </Grid>
-    </DashboardContent>
+      </DashboardContent>
+      {renderAddBankForm()}
+    </>
   );
 }

@@ -44,18 +44,14 @@ export const addTransaction = async (request: AddTransactionRequest): Promise<bo
 export const getTransactions = async (
   companyId: string,
   params?: Partial<TransactionRequestParam>
-): Promise<Transaction[]> => {
+): Promise<GetTransactionResponse[]> => {
   try {
     const _params = omitBy(params ?? {}, isEmpty);
-    const response = await axios.get<APIResponse<Transaction[]>>(
+    const response = await axios.get<APIResponse<GetTransactionResponse[]>>(
       `${endpoints.incomeExpense}/${companyId}`,
       { params: _params }
     );
-    const transactions = response.data?.data;
-
-    if (transactions.length <= 0) {
-      throw new Error('ไม่พบข้อมูลบริษัท');
-    }
+    const transactions = response.data?.data || [];
 
     return transactions;
   } catch (error) {

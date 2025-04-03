@@ -12,3 +12,12 @@ interface Account {
   updatedAt: string;
   status: TAccountStatus;
 }
+
+interface AddAccountRequest {
+  companyId: string;
+  bank: string;
+  bankName: string;
+  bankNumber: string;
+  bankBranch: string;
+  status: TAccountStatus;
+}

@@ -29,7 +29,7 @@ type Props = {
   filters: UseSetStateReturn<FilterTransaction>;
   options: {
     projects: Project[];
-    categories: any[];
+    categories: TransactionCategory[];
     accounts: Account[];
     users: User[];
   };
@@ -182,21 +182,26 @@ export function TransactionTableToolbar({ filters, options, dateError, onResetPa
             value={currentFilters.categories}
             onChange={handleFilterCategory}
             input={<OutlinedInput label="หมวดหมู่" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            renderValue={(selected = []) =>
+              selected?.reduce((prev, current) => {
+                const _category = options.categories.find(({ id }) => id === current);
+                return _category ? `${prev}${prev ? ', ' : ''}${_category.name}` : prev;
+              }, '')
+            }
             inputProps={{ id: 'filter-service-select' }}
             sx={{ textTransform: 'capitalize' }}
           >
             {options.categories.map((option) => (
-              <MenuItem key={option} value={option}>
+              <MenuItem key={option.id} value={option.id}>
                 <Checkbox
                   disableRipple
                   size="small"
-                  checked={currentFilters.categories?.includes(option)}
+                  checked={currentFilters.categories?.includes(option.id)}
                   slotProps={{
-                    input: { id: `${option}-checkbox`, 'aria-label': `${option} checkbox` },
+                    input: { id: `${option.id}-checkbox`, 'aria-label': `${option.id} checkbox` },
                   }}
                 />
-                {option}
+                {option.name}
               </MenuItem>
             ))}
           </Select>

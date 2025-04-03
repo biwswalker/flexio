@@ -28,7 +28,6 @@ import { MenuButton } from '../components/menu-button';
 import { HeaderSection } from '../core/header-section';
 import { LayoutSection } from '../core/layout-section';
 import { AccountDrawer } from '../components/account-drawer';
-import { SettingsButton } from '../components/settings-button';
 import { WorkspacesPopover } from '../components/workspaces-popover';
 import { dashboardLayoutVars, dashboardNavColorVars } from './css-vars';
 import { navMenuData as dashboardNavData } from '../nav-config-dashboard';
@@ -60,7 +59,7 @@ export function DashboardLayout({
   layoutQuery = 'lg',
 }: DashboardLayoutProps) {
   const theme = useTheme();
-  const { companies } = useAuthContext();
+  const { companies, user } = useAuthContext();
 
   const settings = useSettingsContext();
 
@@ -68,7 +67,7 @@ export function DashboardLayout({
 
   const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
-  const navData = slotProps?.nav?.data ?? dashboardNavData(companies, []);
+  const navData = slotProps?.nav?.data ?? dashboardNavData(companies, [], user);
 
   const isNavMini = settings.state.navLayout === 'mini';
   const isNavHorizontal = settings.state.navLayout === 'horizontal';
@@ -152,7 +151,7 @@ export function DashboardLayout({
           {/* <ContactsPopover data={_contacts} /> */}
 
           {/** @slot Settings button */}
-          <SettingsButton />
+          {/* <SettingsButton /> */}
 
           {/** @slot Account drawer */}
           <AccountDrawer data={_account} />

@@ -1,3 +1,10 @@
+type TDashboardPeriod = 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+interface DashboardState {
+  overview: DashboardOverview;
+  detail: DashboardDetail;
+  accounts: Account[];
+}
+
 interface OverviewSeries {
   total: number;
   percent: number;
@@ -10,6 +17,16 @@ interface DashboardOverview {
   expense: OverviewSeries;
 }
 
-interface DashboardState {
-  overview: DashboardOverview;
+interface DetailData {
+  type: TTransactionType;
+  label: string;
+  percent: number;
+  total: number;
+  series: number[];
+}
+
+interface DashboardDetail {
+  period: TDashboardPeriod;
+  labels: string[];
+  data: DetailData[];
 }

@@ -23,3 +23,22 @@ export const getAccounts = async (companyId?: string): Promise<Account[]> => {
     throw error;
   }
 };
+
+/** **************************************
+ * Add Accounts
+ *************************************** */
+export const addAccounts = async (request?: AddAccountRequest): Promise<boolean> => {
+  try {
+    const response = await axios.post<APIResponse<boolean>>(endpoints.account, request);
+    const result = response.data?.data;
+
+    if (!result) {
+      throw new Error('ไม่พบข้อมูลบัญชี');
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Error during fetching account:', error);
+    throw error;
+  }
+};
