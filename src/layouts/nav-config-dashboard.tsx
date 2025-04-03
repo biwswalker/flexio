@@ -43,7 +43,12 @@ const ICONS = {
 };
 
 // ----------------------------------------------------------------------
-export const navMenuData = (companies: Company[], projects: Project[]): NavSectionProps['data'] => {
+export const navMenuData = (
+  companies: Company[],
+  projects: Project[],
+  user: User | undefined
+): NavSectionProps['data'] => {
+  const isManagmentAccessible = ['OWNER', 'ADMIN'].includes(user?.role || '');
   const companieMenus: NavItemDataProps[] = companies.map((company) => ({
     title: company.name,
     path: paths.management.companies.detail(company.shortName),
@@ -63,13 +68,16 @@ export const navMenuData = (companies: Company[], projects: Project[]): NavSecti
           title: 'แดชบอร์ด',
           path: paths.dashboard.root,
           icon: ICONS.dashboard,
-          // info: <Label>v{CONFIG.appVersion}</Label>,
         },
-        {
-          title: 'ผู้ใช้งานระบบ',
-          path: paths.user.root,
-          icon: ICONS.user,
-        },
+        ...(isManagmentAccessible
+          ? [
+              {
+                title: 'ผู้ใช้งานระบบ',
+                path: paths.user.root,
+                icon: ICONS.user,
+              },
+            ]
+          : []),
       ],
     },
     /**
@@ -78,25 +86,29 @@ export const navMenuData = (companies: Company[], projects: Project[]): NavSecti
     {
       subheader: 'การจัดการ',
       items: [
-        {
-          title: 'บริษัท',
-          path: paths.management.companies.root,
-          icon: ICONS.banking,
-          info:
-            companieMenus.length > 0 ? (
-              <Label color="info" variant="soft">
-                {companieMenus.length}
-              </Label>
-            ) : null,
-          children: [
-            ...companieMenus,
-            {
-              title: 'เพิ่มบริษัท',
-              path: paths.management.companies.new,
-              icon: ICONS.blank,
-            },
-          ],
-        },
+        ...(isManagmentAccessible
+          ? [
+              {
+                title: 'บริษัท',
+                path: paths.management.companies.root,
+                icon: ICONS.banking,
+                info:
+                  companieMenus.length > 0 ? (
+                    <Label color="info" variant="soft">
+                      {companieMenus.length}
+                    </Label>
+                  ) : null,
+                children: [
+                  ...companieMenus,
+                  {
+                    title: 'เพิ่มบริษัท',
+                    path: paths.management.companies.new,
+                    icon: ICONS.blank,
+                  },
+                ],
+              },
+            ]
+          : []),
         {
           title: 'โครงการ',
           path: paths.management.projects.root,
@@ -147,6 +159,16 @@ export const navMenuData = (companies: Company[], projects: Project[]): NavSecti
               path: paths.management.documents.receives,
             },
           ],
+        },
+      ],
+    },
+    {
+      items: [
+        {
+          title: 'เวอร์ชั่น:',
+          disabled: true,
+          path: paths.dashboard.root,
+          info: <Label>v{CONFIG.appVersion}</Label>,
         },
       ],
     },

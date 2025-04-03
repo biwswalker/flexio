@@ -8,12 +8,16 @@ import Grid from '@mui/material/Grid2';
 
 import { getAccounts } from 'src/services/account';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { MotivationIllustration } from 'src/assets/illustrations';
 import { getDashboardDetail, getDashboardOverview } from 'src/services/dashboard';
+
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { BankNewEditForm } from 'src/sections/bank/bank-new-edit-form';
 
 import { useAuthContext } from 'src/auth/hooks';
 
+import { AppWelcome } from '../app-welcome';
 import { BankingOverview } from '../banking-overview';
 import { BankingCurrentBalance } from '../banking-current-balance';
 import { BankingBalanceStatistics } from '../banking-balance-statistics';
@@ -22,7 +26,8 @@ import { BankingBalanceStatistics } from '../banking-balance-statistics';
 
 export function OverviewBankingView() {
   const addBankAccountForm = useBoolean();
-  const { company } = useAuthContext();
+  const loading = useBoolean();
+  const { company, user } = useAuthContext();
 
   const dashboardState = useSetState<DashboardState>({
     overview: {
@@ -48,6 +53,7 @@ export function OverviewBankingView() {
 
   const handleGetDashboardData = useCallback(async () => {
     try {
+      loading.onTrue();
       const overviewData = await getDashboardOverview(company?.id);
       const detailData = await getDashboardDetail('WEEKLY', company?.id);
       const accountData = await getAccounts(company?.id);
@@ -58,9 +64,11 @@ export function OverviewBankingView() {
       });
     } catch (error) {
       console.error(error);
+    } finally {
+      loading.onFalse();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [company]);
+  }, [company?.id, dashboardState]);
 
   useEffect(() => {
     if (company) {
@@ -83,13 +91,34 @@ export function OverviewBankingView() {
     addBankAccountForm.onFalse();
   }, [addBankAccountForm, company?.id, dashboardState]);
 
+  if (!company || loading.value || !user) {
+    return <LoadingScreen />;
+  }
+
   const renderAddBankForm = () => (
     <BankNewEditForm
+      company={company}
       open={addBankAccountForm.value}
       onClose={addBankAccountForm.onFalse}
       onComplete={handleOnAddBankAccountComplete}
     />
   );
+
+  if (user.role === 'FINANCIAL') {
+    return (
+      <DashboardContent maxWidth="xl">
+        <Grid container spacing={3}>
+          <Grid>
+            <AppWelcome
+              title={`สวัสดี 👋 \n ${user?.name}`}
+              description="ที่นี่คุณสามารถติดตามข้อมูลรายการการเงิน ตรวจสอบประวัติรายรับรายจ่าย ทุกอย่างที่คุณต้องการอยู่แค่ปลายนิ้ว."
+              img={<MotivationIllustration hideBackground />}
+            />
+          </Grid>
+        </Grid>
+      </DashboardContent>
+    );
+  }
 
   return (
     <>
@@ -99,7 +128,7 @@ export function OverviewBankingView() {
             <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
               <BankingOverview
                 data={dashboardState.state.overview}
-                onPressAction={() => addBankAccountForm.onTrue()}
+                onPressAction={addBankAccountForm.onTrue}
               />
 
               <BankingBalanceStatistics

@@ -15,16 +15,11 @@ import {
   DialogActions,
 } from '@mui/material';
 
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
-
 import { addAccounts } from 'src/services/account';
 import { BANK_PROVIDER, ACCOUNT_STATUS_OPTIONS } from 'src/constants/account';
 
 import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
-
-import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 export type NewBankSchemaType = zod.infer<typeof NewBankSchema>;
@@ -46,17 +41,15 @@ export const NewBankSchema = zod.object({
 
 type Props = {
   open: boolean;
+  company: Company;
   onClose: () => void;
   onComplete: () => void;
   account?: Account;
 };
 
-export function BankNewEditForm({ account, open, onClose, onComplete }: Props) {
-  const router = useRouter();
-  const { company } = useAuthContext();
-
+export function BankNewEditForm({ account, open, company, onClose, onComplete }: Props) {
   const defaultValues: NewBankSchemaType = {
-    company: company?.name || '',
+    company: company.name || '',
     status: account?.status || 'ACTIVE',
     bank: account?.bank || '',
     bankName: account?.bankName || '',
@@ -94,7 +87,6 @@ export function BankNewEditForm({ account, open, onClose, onComplete }: Props) {
       } else {
         toast.error('ไม่พบข้อมูลบัญชี');
       }
-      router.push(paths.management.incomeExpense.transactions);
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message || 'ไม่พบข้อมูลบัญชี');

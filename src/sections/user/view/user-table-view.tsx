@@ -128,6 +128,13 @@ export function UserTableView({ companyId }: Props) {
     handleGetUsers(currentFilters);
   }, [currentFilters, handleGetUsers]);
 
+  useEffect(() => {
+    if (companyId) {
+      filters.setField('companyIds', [companyId]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId]);
+
   const renderConfirmDialog = () => (
     <ConfirmDialog
       open={confirmDialog.value}

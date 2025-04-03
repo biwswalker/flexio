@@ -32,7 +32,7 @@ export function WorkspacesPopover({ data = [], sx, ...other }: WorkspacesPopover
   const { setCompany, company } = useAuthContext();
   const { open, anchorEl, onClose, onOpen } = usePopover();
 
-  const [workspace, setWorkspace] = useState(data[0]);
+  const [workspace, setWorkspace] = useState(company || data[0]);
 
   const handleChangeWorkspace = useCallback(
     (newValue: (typeof data)[0]) => {
